@@ -25,8 +25,8 @@
 <body>
 <main id="app"></main>
 <script>
-  // Производная копия nutrition/log.csv. Агент обновляет массив после каждой правки CSV.
-  const entries = [
+  // Запасная копия: обычно дашборд читает свежий CSV напрямую из GitHub.
+  const fallbackEntries = [
     {date:"2026-07-25",time:"16:14",foods:"Осетинские пироги с ботвой/сыром и говядиной; квас",kcal:955,p:37.5,f:42,c:101.5,fiber:5},
     {date:"2026-07-25",time:"22:23",foods:"Куриное бедро в лепинье; окрошка; шопский салат; лимонад",kcal:1650,p:77,f:72,c:153,fiber:9},
     {date:"2026-07-25",time:"02:30",foods:"Сидр сухой «Дальняя Дача» ×3 (после полуночи, до сна)",kcal:608,p:0,f:0,c:6.8,fiber:0},
@@ -47,9 +47,36 @@
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
-  const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
   const app = document.querySelector("#app");
-  app.innerHTML = dates.map((date,index) => {
+  const csvUrl = "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv";
+
+  function parseCsv(text) {
+    const rows = [], row = [];
+    let field = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (quoted) {
+        if (char === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (char === '"') quoted = false;
+        else field += char;
+      } else if (char === '"') quoted = true;
+      else if (char === ",") { row.push(field); field = ""; }
+      else if (char === "\n") { row.push(field); rows.push(row.splice(0)); field = ""; }
+      else if (char !== "\r") field += char;
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    const [headers, ...data] = rows;
+    return data.filter(row => row.length === headers.length).map(row => {
+      const item = Object.fromEntries(headers.map((key, index) => [key, row[index]]));
+      return { date:item.date, time:item.time, foods:item.foods,
+        kcal:Number(item.kcal), p:Number(item.protein_g), f:Number(item.fat_g),
+        c:Number(item.carbs_g), fiber:Number(item.fiber_g) };
+    });
+  }
+
+  function render(entries) {
+    const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
+    app.innerHTML = dates.map((date,index) => {
     const rows = entries.filter(x=>x.date===date).sort((a,b) => b.time.localeCompare(a.time)), t = total(entries.filter(x=>x.date===date));
     const title = index === 0 ? "Сегодня" : index === 1 ? "Вчера" : date.split("-").reverse().join(".");
     const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
@@ -66,7 +93,13 @@
       </div>
       ${rows.map(x=>`<div class="meal"><div>${x.time}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")}
     </section>`;
-  }).join("");
+    }).join("");
+  }
+
+  fetch(`${csvUrl}?v=${Date.now()}`, { cache:"no-store" })
+    .then(response => { if (!response.ok) throw new Error("CSV unavailable"); return response.text(); })
+    .then(text => render(parseCsv(text)))
+    .catch(() => render(fallbackEntries));
 </script>
 </body>
 </html>
