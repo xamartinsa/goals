@@ -50,7 +50,7 @@
   const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
   const app = document.querySelector("#app");
   app.innerHTML = dates.map((date,index) => {
-    const rows = entries.filter(x=>x.date===date), t = total(rows);
+    const rows = entries.filter(x=>x.date===date).sort((a,b) => b.time.localeCompare(a.time)), t = total(entries.filter(x=>x.date===date));
     const title = index === 0 ? "Сегодня" : index === 1 ? "Вчера" : date.split("-").reverse().join(".");
     const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
     const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
