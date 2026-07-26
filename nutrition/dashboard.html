@@ -28,7 +28,8 @@
     {date:"2026-07-26",time:"02:30",foods:"Сидр сухой «Дальняя Дача» ×3",kcal:608,p:0,f:0,c:6.8,fiber:0},
     {date:"2026-07-26",time:"15:00",foods:"Теремок: ветчина-сыр; Алёша Попович; лаванда с заварным кремом",kcal:1528,p:53.7,f:85.6,c:137.2,fiber:2}
   ];
-  const targets = { kcal:2550, p:170, f:65, fiber:28 };
+  const targets = { restKcal:2200, trainingKcal:2500, p:160, f:65, fiber:28 };
+  const trainingDays = new Set([0, 2, 5]); // вс, вт, пт
   const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".",",");
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
@@ -36,10 +37,13 @@
   app.innerHTML = dates.map((date,index) => {
     const rows = entries.filter(x=>x.date===date), t = total(rows);
     const title = index === 0 ? "Сегодня" : index === 1 ? "Вчера" : date.split("-").reverse().join(".");
+    const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
+    const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
+    const dayType = isTrainingDay ? "тренировка" : "отдых";
     return `<section>
       <h1>${title}</h1>
       <div class="totals">
-        <div>Калории: ${fmt(t.kcal)} из ~${targets.kcal}</div>
+        <div>Калории: ${fmt(t.kcal)} из ~${kcalTarget} (${dayType})</div>
         <div>Белок: ${fmt(t.p)} г из ${targets.p} г</div>
         <div>Жиры: ${fmt(t.f)} г из ≥${targets.f} г</div>
         <div>Углеводы: ${fmt(t.c)} г</div>
