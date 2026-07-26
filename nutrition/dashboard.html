@@ -45,7 +45,7 @@
         <div>Углеводы: ${fmt(t.c)} г</div>
         <div>Клетчатка: ${fmt(t.fiber)} г из ${targets.fiber} г</div>
       </div>
-      ${rows.map(x=>`<div class="meal"><span>${x.time}</span> | <span class="food">${x.foods}</span> | <span>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</span></div>`).join("")}
+      ${rows.map(x=>`<div class="meal"><div>${x.time}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")}
     </section>`;
   }).join("");
 </script>
