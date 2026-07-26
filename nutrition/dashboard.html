@@ -11,6 +11,9 @@
     h1 { font-size:26px; margin:0 0 10px; }
     .totals { margin:0 0 18px; }
     .totals div { margin:2px 0; }
+    .pct { font-weight:bold; }
+    .good { color:#28734a; }
+    .warm { color:#9a5a1d; }
     .meal { padding:10px 0; border-top:1px solid #ddd; }
     .meal:first-of-type { border-top:1px solid #000; }
     .food { font-weight:bold; }
@@ -28,9 +31,19 @@
     {date:"2026-07-26",time:"02:30",foods:"Сидр сухой «Дальняя Дача» ×3",kcal:608,p:0,f:0,c:6.8,fiber:0},
     {date:"2026-07-26",time:"15:00",foods:"Теремок: ветчина-сыр; Алёша Попович; лаванда с заварным кремом",kcal:1528,p:53.7,f:85.6,c:137.2,fiber:2}
   ];
-  const targets = { restKcal:2200, trainingKcal:2500, p:160, f:65, fiber:28 };
+  const targets = {
+    restKcal:2250, trainingKcal:2500,
+    restCarbs:245, trainingCarbs:308,
+    p:160, f:70, fiber:27.5
+  };
   const trainingDays = new Set([0, 2, 5]); // вс, вт, пт
   const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".",",");
+  const percent = (value, target) => Math.round(value / target * 20) * 5;
+  const pct = (value, target) => {
+    const valuePct = percent(value, target);
+    const tone = valuePct < 70 || valuePct > 110 ? "warm" : "good";
+    return `<span class="pct ${tone}">${valuePct}%</span>`;
+  };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
   const app = document.querySelector("#app");
@@ -39,15 +52,15 @@
     const title = index === 0 ? "Сегодня" : index === 1 ? "Вчера" : date.split("-").reverse().join(".");
     const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
     const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
-    const dayType = isTrainingDay ? "тренировка" : "отдых";
+    const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
     return `<section>
       <h1>${title}</h1>
       <div class="totals">
-        <div>Калории: ${fmt(t.kcal)} из ~${kcalTarget} (${dayType})</div>
-        <div>Белок: ${fmt(t.p)} г из ${targets.p} г</div>
-        <div>Жиры: ${fmt(t.f)} г из ≥${targets.f} г</div>
-        <div>Углеводы: ${fmt(t.c)} г</div>
-        <div>Клетчатка: ${fmt(t.fiber)} г из ${targets.fiber} г</div>
+        <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
+        <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p)}</div>
+        <div>Жиры: ${fmt(t.f)} г · ${pct(t.f, targets.f)}</div>
+        <div>Углеводы: ${fmt(t.c)} г · ${pct(t.c, carbsTarget)}</div>
+        <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber)}</div>
       </div>
       ${rows.map(x=>`<div class="meal"><div>${x.time}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")}
     </section>`;
