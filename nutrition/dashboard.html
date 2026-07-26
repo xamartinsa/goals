@@ -11,14 +11,11 @@
     h1 { font-size:26px; margin:0 0 10px; }
     .totals { margin:0 0 18px; }
     .totals div { margin:2px 0; }
-    table { width:100%; border-collapse:collapse; }
-    th { text-align:left; font-size:14px; padding:6px 4px; border-bottom:1px solid #000; }
-    td { padding:10px 4px; vertical-align:top; border-bottom:1px solid #ddd; }
-    .time { width:54px; white-space:nowrap; }
+    .meal { padding:10px 0; border-top:1px solid #ddd; }
+    .meal:first-of-type { border-top:1px solid #000; }
     .food { font-weight:bold; }
-    .macro { width:130px; white-space:nowrap; }
     section { margin:0 0 34px; }
-    @media (max-width:520px) { body { font-size:14px; } .macro { width:96px; font-size:12px; } .time { width:45px; } }
+    @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
 <body>
@@ -48,9 +45,7 @@
         <div>Углеводы: ${fmt(t.c)} г</div>
         <div>Клетчатка: ${fmt(t.fiber)} г из ${targets.fiber} г</div>
       </div>
-      <table><thead><tr><th>Время</th><th>Название</th><th>КБЖУ</th></tr></thead><tbody>
-        ${rows.map(x=>`<tr><td class="time">${x.time}</td><td class="food">${x.foods}</td><td class="macro">${fmt(x.kcal)} ккал<br>Б ${fmt(x.p)} · Ж ${fmt(x.f)}<br>У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</td></tr>`).join("")}
-      </tbody></table>
+      ${rows.map(x=>`<div class="meal"><span>${x.time}</span> | <span class="food">${x.foods}</span> | <span>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</span></div>`).join("")}
     </section>`;
   }).join("");
 </script>
