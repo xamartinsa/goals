@@ -13,7 +13,8 @@
     .totals div { margin:2px 0; }
     .pct { font-weight:bold; }
     .good { color:#28734a; }
-    .warm { color:#9a5a1d; }
+    .low { color:#a16d00; }
+    .high { color:#b3261e; }
     .meal { padding:10px 0; border-top:1px solid #ddd; }
     .meal:first-of-type { border-top:1px solid #000; }
     .food { font-weight:bold; }
@@ -41,7 +42,7 @@
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   const pct = (value, target) => {
     const valuePct = percent(value, target);
-    const tone = valuePct < 70 || valuePct > 110 ? "warm" : "good";
+    const tone = valuePct < 70 ? "low" : valuePct > 110 ? "high" : "good";
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
