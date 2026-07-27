@@ -6,12 +6,26 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>Питание</title>
   <style>
     * { box-sizing:border-box; }
     body { margin:0; background:#fff; color:#000; font:16px/1.4 Arial, sans-serif; }
     main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
     h1 { font-size:26px; margin:0 0 10px; }
+    .status {
+      margin:0 0 16px;
+      padding:12px 14px;
+      border:1px solid #000;
+      background:#f7f7f7;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .status.ok { background:#eef7f1; border-color:#28734a; }
+    .status.warn { background:#fff6e8; border-color:#a16d00; }
+    .status.err { background:#fdeeee; border-color:#b3261e; }
+    .status.loading { background:#f0f0f0; }
+    .status strong { display:block; margin:0 0 4px; font-size:15px; }
     .meta { margin:0 0 18px; color:#555; font-size:13px; }
     .empty { margin:8px 0 0; color:#666; }
     .totals { margin:0 0 18px; }
@@ -51,7 +65,7 @@
 <main id="app"></main>
 <button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
 <script>
-  // Запасная копия: обычно дашборд читает свежий CSV напрямую из GitHub.
+  // Запасная копия на крайний случай. Живые данные — log.csv с этого же сайта.
   const fallbackEntries = [
     {date:"2026-07-25",time:"16:14",foods:"Осетинские пироги с ботвой/сыром и говядиной; квас",kcal:955,p:37.5,f:42,c:101.5,fiber:5},
     {date:"2026-07-25",time:"22:23",foods:"Куриное бедро в лепинье; окрошка; шопский салат; лимонад",kcal:1650,p:77,f:72,c:153,fiber:9},
@@ -79,17 +93,24 @@
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
-  // Сначала тот же github.io (iPhone часто режет raw.githubusercontent.com), потом raw, потом fallback.
   const csvUrls = [
     "log.csv",
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv"
   ];
+  let lastFingerprint = "";
+  let lastEntries = [];
+
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
     const minutes = hour * 60 + minute;
     return minutes < 360 ? minutes + 1440 : minutes;
   };
   const displayTime = time => mealOrder(time) >= 1440 ? `${time} (+1)` : time;
+  const escapeHtml = s => String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 
   function moscowToday() {
     return new Intl.DateTimeFormat("en-CA", {
@@ -98,6 +119,15 @@
       month: "2-digit",
       day: "2-digit"
     }).format(new Date());
+  }
+
+  function moscowNow() {
+    return new Date().toLocaleTimeString("ru-RU", {
+      timeZone: "Europe/Moscow",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
   }
 
   function shiftDate(isoDate, days) {
@@ -111,6 +141,21 @@
     if (date === today) return "Сегодня";
     if (date === yesterday) return "Вчера";
     return date.split("-").reverse().join(".");
+  }
+
+  function fingerprint(entries) {
+    return entries
+      .map(x => `${x.date}|${x.time}|${x.foods}|${x.kcal}|${x.p}|${x.f}|${x.c}|${x.fiber}`)
+      .sort()
+      .join("\n");
+  }
+
+  function latestMeal(entries) {
+    if (!entries.length) return null;
+    return [...entries].sort((a, b) => {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return mealOrder(b.time) - mealOrder(a.time);
+    })[0];
   }
 
   function parseCsv(text) {
@@ -137,28 +182,63 @@
     });
   }
 
-  function render(entries, syncedAt, sourceLabel) {
+  function statusBlock({ tone, title, lines }) {
+    return `<div class="status ${tone}" id="sync-status" role="status" aria-live="polite">
+      <strong>${escapeHtml(title)}</strong>
+      ${lines.map(line => `<div>${escapeHtml(line)}</div>`).join("")}
+    </div>`;
+  }
+
+  function render(entries, info) {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
     const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
-    const synced = syncedAt.toLocaleTimeString("ru-RU", {
-      timeZone: "Europe/Moscow",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    });
-    app.innerHTML = `<div class="meta">МСК ${today.split("-").reverse().join(".")} · обновлено ${synced} · ${sourceLabel}</div>` + dates.map(date => {
+    const todayRows = entries.filter(x => x.date === today);
+    const latest = latestMeal(entries);
+    const fp = fingerprint(entries);
+    const changed = lastFingerprint && fp !== lastFingerprint;
+    const delta = entries.length - lastEntries.length;
+    const mealLine = latest
+      ? `Последний приём: ${latest.date.split("-").reverse().join(".")} ${displayTime(latest.time)} — ${latest.foods}`
+      : "Приёмов в логе нет";
+    const changeLine = !lastFingerprint
+      ? `Записей в логе: ${entries.length}`
+      : changed
+        ? `Данные обновились · записей ${entries.length}${delta ? ` (${delta > 0 ? "+" : ""}${delta})` : ""}`
+        : `Без изменений · записей ${entries.length}`;
+
+    const tone = info.ok ? (info.offline ? "warn" : "ok") : "err";
+    const title = info.loading
+      ? "Обновляю…"
+      : info.ok
+        ? (info.offline ? "Не удалось скачать свежий лог" : "Данные получены")
+        : "Ошибка обновления";
+
+    const lines = info.loading
+      ? ["Чищу кэш и запрашиваю log.csv…"]
+      : [
+          `Источник: ${info.source}`,
+          `Проверка: ${info.ok ? "ok" : "fail"}${info.detail ? ` · ${info.detail}` : ""}`,
+          changeLine,
+          `Сегодня (${today.split("-").reverse().join(".")}): ${todayRows.length} приём(а/ов), ${fmt(total(todayRows).kcal)} ккал`,
+          mealLine,
+          `Время проверки: ${moscowNow()} МСК`
+        ];
+
+    const daysHtml = info.loading && !lastEntries.length
+      ? ""
+      : dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
       const t = total(rows);
-      const title = dayTitle(date, today, yesterday);
+      const titleDay = dayTitle(date, today, yesterday);
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
       const mealsHtml = rows.length
-        ? rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")
+        ? rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")
         : `<div class="empty">Пока пусто</div>`;
       return `<section>
-      <h1>${title}</h1>
+      <h1>${titleDay}</h1>
       <div class="totals">
         <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
         <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p)}</div>
@@ -169,33 +249,72 @@
       ${mealsHtml}
     </section>`;
     }).join("");
+
+    app.innerHTML = statusBlock({ tone: info.loading ? "loading" : tone, title, lines }) + daysHtml;
+    if (!info.loading) {
+      lastFingerprint = fp;
+      lastEntries = entries;
+    }
   }
 
   function fetchCsv(url) {
-    return fetch(`${url}?v=${Date.now()}`, { cache: "no-store" })
-      .then(response => {
-        if (!response.ok) throw new Error(`CSV unavailable: ${url}`);
-        return response.text();
-      })
-      .then(text => {
-        if (!text || !text.includes("date,time,meal_type")) throw new Error(`Bad CSV: ${url}`);
-        return text;
-      });
+    const bust = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return fetch(`${url}?v=${bust}`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache"
+      }
+    }).then(async response => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const text = await response.text();
+      if (!text || !text.includes("date,time,meal_type")) throw new Error("плохой CSV");
+      return { text, bytes: text.length };
+    });
   }
 
   function loadData() {
     refreshBtn.disabled = true;
     refreshBtn.textContent = "Обновляю…";
+    render(lastEntries.length ? lastEntries : fallbackEntries, {
+      loading: true,
+      ok: true,
+      offline: false,
+      source: "…",
+      detail: ""
+    });
+
+    const errors = [];
     const tryNext = (index) => {
       if (index >= csvUrls.length) {
-        render(fallbackEntries, new Date(), "офлайн-копия");
+        render(fallbackEntries, {
+          loading: false,
+          ok: true,
+          offline: true,
+          source: "офлайн-копия",
+          detail: errors.join("; ") || "сеть недоступна"
+        });
         return Promise.resolve();
       }
-      const label = index === 0 ? "сайт" : "github";
+      const source = index === 0 ? "сайт (log.csv)" : "github raw";
       return fetchCsv(csvUrls[index])
-        .then(text => render(parseCsv(text), new Date(), label))
-        .catch(() => tryNext(index + 1));
+        .then(({ text, bytes }) => {
+          const entries = parseCsv(text);
+          if (!entries.length) throw new Error("пустой лог");
+          render(entries, {
+            loading: false,
+            ok: true,
+            offline: false,
+            source,
+            detail: `${bytes} байт`
+          });
+        })
+        .catch(err => {
+          errors.push(`${source}: ${err.message || err}`);
+          return tryNext(index + 1);
+        });
     };
+
     return tryNext(0).finally(() => {
       refreshBtn.disabled = false;
       refreshBtn.textContent = "Обновить";
