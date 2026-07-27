@@ -60,7 +60,8 @@
     {date:"2026-07-26",time:"21:22",foods:"Тонкий хинкал с говядиной; овощи; красный соус; бульон",kcal:925,p:52,f:32,c:105,fiber:5},
     {date:"2026-07-26",time:"02:03",foods:"Пломбир Коровка из Кореновки крем-брюле 100 г; коктейль NEO High Protein шоколад",kcal:400,p:33,f:14.9,c:32.9,fiber:0},
     {date:"2026-07-27",time:"16:01",foods:"Овсяная каша на воде; фруктовое пюре в кашу; чурчхела",kcal:350,p:9.2,f:8.5,c:57.7,fiber:8.1},
-    {date:"2026-07-27",time:"16:14",foods:"Пельмени со свининой жареные",kcal:510,p:22,f:28,c:42,fiber:2}
+    {date:"2026-07-27",time:"16:14",foods:"Пельмени со свининой жареные",kcal:510,p:22,f:28,c:42,fiber:2},
+    {date:"2026-07-27",time:"21:00",foods:"Макароны с сыром; куриная грудка жареная",kcal:680,p:46.5,f:19.8,c:84.5,fiber:5.6}
   ];
   const targets = {
     restKcal:2250, trainingKcal:2500,
@@ -78,7 +79,11 @@
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
-  const csvUrl = "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv";
+  // Сначала тот же github.io (iPhone часто режет raw.githubusercontent.com), потом raw, потом fallback.
+  const csvUrls = [
+    "log.csv",
+    "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv"
+  ];
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
     const minutes = hour * 60 + minute;
@@ -132,7 +137,7 @@
     });
   }
 
-  function render(entries, syncedAt) {
+  function render(entries, syncedAt, sourceLabel) {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
     const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
@@ -142,7 +147,7 @@
       minute: "2-digit",
       second: "2-digit"
     });
-    app.innerHTML = `<div class="meta">МСК ${today.split("-").reverse().join(".")} · обновлено ${synced}</div>` + dates.map(date => {
+    app.innerHTML = `<div class="meta">МСК ${today.split("-").reverse().join(".")} · обновлено ${synced} · ${sourceLabel}</div>` + dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
       const t = total(rows);
       const title = dayTitle(date, today, yesterday);
@@ -166,17 +171,35 @@
     }).join("");
   }
 
+  function fetchCsv(url) {
+    return fetch(`${url}?v=${Date.now()}`, { cache: "no-store" })
+      .then(response => {
+        if (!response.ok) throw new Error(`CSV unavailable: ${url}`);
+        return response.text();
+      })
+      .then(text => {
+        if (!text || !text.includes("date,time,meal_type")) throw new Error(`Bad CSV: ${url}`);
+        return text;
+      });
+  }
+
   function loadData() {
     refreshBtn.disabled = true;
     refreshBtn.textContent = "Обновляю…";
-    return fetch(`${csvUrl}?v=${Date.now()}`, { cache: "no-store" })
-      .then(response => { if (!response.ok) throw new Error("CSV unavailable"); return response.text(); })
-      .then(text => render(parseCsv(text), new Date()))
-      .catch(() => render(fallbackEntries, new Date()))
-      .finally(() => {
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = "Обновить";
-      });
+    const tryNext = (index) => {
+      if (index >= csvUrls.length) {
+        render(fallbackEntries, new Date(), "офлайн-копия");
+        return Promise.resolve();
+      }
+      const label = index === 0 ? "сайт" : "github";
+      return fetchCsv(csvUrls[index])
+        .then(text => render(parseCsv(text), new Date(), label))
+        .catch(() => tryNext(index + 1));
+    };
+    return tryNext(0).finally(() => {
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = "Обновить";
+    });
   }
 
   refreshBtn.addEventListener("click", () => { loadData(); });
