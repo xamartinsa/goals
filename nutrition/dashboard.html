@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Питание</title>
   <style>
     * { box-sizing:border-box; }
     body { margin:0; background:#fff; color:#000; font:16px/1.4 Arial, sans-serif; }
     main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
     h1 { font-size:26px; margin:0 0 10px; }
+    .meta { margin:0 0 18px; color:#555; font-size:13px; }
+    .empty { margin:8px 0 0; color:#666; }
     .totals { margin:0 0 18px; }
     .totals div { margin:2px 0; }
     .pct { font-weight:bold; }
@@ -55,7 +58,9 @@
     {date:"2026-07-25",time:"02:30",foods:"Сидр сухой «Дальняя Дача» ×3 (после полуночи, до сна)",kcal:608,p:0,f:0,c:6.8,fiber:0},
     {date:"2026-07-26",time:"15:00",foods:"Теремок: ветчина-сыр; Алёша Попович; лаванда с заварным кремом",kcal:1528,p:53.7,f:85.6,c:137.2,fiber:2},
     {date:"2026-07-26",time:"21:22",foods:"Тонкий хинкал с говядиной; овощи; красный соус; бульон",kcal:925,p:52,f:32,c:105,fiber:5},
-    {date:"2026-07-26",time:"02:03",foods:"Пломбир Коровка из Кореновки крем-брюле 100 г; коктейль NEO High Protein шоколад",kcal:400,p:33,f:14.9,c:32.9,fiber:0}
+    {date:"2026-07-26",time:"02:03",foods:"Пломбир Коровка из Кореновки крем-брюле 100 г; коктейль NEO High Protein шоколад",kcal:400,p:33,f:14.9,c:32.9,fiber:0},
+    {date:"2026-07-27",time:"16:01",foods:"Овсяная каша на воде; фруктовое пюре в кашу; чурчхела",kcal:350,p:9.2,f:8.5,c:57.7,fiber:8.1},
+    {date:"2026-07-27",time:"16:14",foods:"Пельмени со свининой жареные",kcal:510,p:22,f:28,c:42,fiber:2}
   ];
   const targets = {
     restKcal:2250, trainingKcal:2500,
@@ -81,6 +86,28 @@
   };
   const displayTime = time => mealOrder(time) >= 1440 ? `${time} (+1)` : time;
 
+  function moscowToday() {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Moscow",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(new Date());
+  }
+
+  function shiftDate(isoDate, days) {
+    const [y, m, d] = isoDate.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function dayTitle(date, today, yesterday) {
+    if (date === today) return "Сегодня";
+    if (date === yesterday) return "Вчера";
+    return date.split("-").reverse().join(".");
+  }
+
   function parseCsv(text) {
     const rows = [], row = [];
     let field = "", quoted = false;
@@ -105,15 +132,27 @@
     });
   }
 
-  function render(entries) {
-    const dates = [...new Set(entries.map(x=>x.date))].sort().reverse();
-    app.innerHTML = dates.map((date,index) => {
-    const rows = entries.filter(x=>x.date===date).sort((a,b) => mealOrder(b.time) - mealOrder(a.time)), t = total(entries.filter(x=>x.date===date));
-    const title = index === 0 ? "Сегодня" : index === 1 ? "Вчера" : date.split("-").reverse().join(".");
-    const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
-    const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
-    const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-    return `<section>
+  function render(entries, syncedAt) {
+    const today = moscowToday();
+    const yesterday = shiftDate(today, -1);
+    const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
+    const synced = syncedAt.toLocaleTimeString("ru-RU", {
+      timeZone: "Europe/Moscow",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+    app.innerHTML = `<div class="meta">МСК ${today.split("-").reverse().join(".")} · обновлено ${synced}</div>` + dates.map(date => {
+      const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
+      const t = total(rows);
+      const title = dayTitle(date, today, yesterday);
+      const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
+      const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
+      const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
+      const mealsHtml = rows.length
+        ? rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")
+        : `<div class="empty">Пока пусто</div>`;
+      return `<section>
       <h1>${title}</h1>
       <div class="totals">
         <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
@@ -122,7 +161,7 @@
         <div>Углеводы: ${fmt(t.c)} г · ${pct(t.c, carbsTarget)}</div>
         <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber)}</div>
       </div>
-      ${rows.map(x=>`<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${x.foods}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")}
+      ${mealsHtml}
     </section>`;
     }).join("");
   }
@@ -130,10 +169,10 @@
   function loadData() {
     refreshBtn.disabled = true;
     refreshBtn.textContent = "Обновляю…";
-    return fetch(`${csvUrl}?v=${Date.now()}`, { cache:"no-store" })
+    return fetch(`${csvUrl}?v=${Date.now()}`, { cache: "no-store" })
       .then(response => { if (!response.ok) throw new Error("CSV unavailable"); return response.text(); })
-      .then(text => render(parseCsv(text)))
-      .catch(() => render(fallbackEntries))
+      .then(text => render(parseCsv(text), new Date()))
+      .catch(() => render(fallbackEntries, new Date()))
       .finally(() => {
         refreshBtn.disabled = false;
         refreshBtn.textContent = "Обновить";
