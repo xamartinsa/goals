@@ -2,12 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Питание</title>
   <style>
     * { box-sizing:border-box; }
     body { margin:0; background:#fff; color:#000; font:16px/1.4 Arial, sans-serif; }
-    main { max-width:720px; margin:0 auto; padding:20px 16px 50px; }
+    main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
     h1 { font-size:26px; margin:0 0 10px; }
     .totals { margin:0 0 18px; }
     .totals div { margin:2px 0; }
@@ -19,11 +21,32 @@
     .meal:first-of-type { border-top:1px solid #000; }
     .food { font-weight:bold; }
     section { margin:0 0 34px; }
+    .refresh {
+      position:fixed;
+      right:max(16px, env(safe-area-inset-right, 0px));
+      bottom:max(16px, env(safe-area-inset-bottom, 0px));
+      z-index:1000;
+      border:1px solid #000;
+      border-radius:999px;
+      background:#fff;
+      color:#000;
+      font:600 15px/1 Arial, sans-serif;
+      padding:14px 18px;
+      min-height:48px;
+      min-width:48px;
+      box-shadow:0 2px 10px rgba(0,0,0,.15);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+    .refresh:active { background:#f2f2f2; }
+    .refresh[disabled] { opacity:.65; cursor:wait; }
     @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
 <body>
 <main id="app"></main>
+<button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
 <script>
   // Запасная копия: обычно дашборд читает свежий CSV напрямую из GitHub.
   const fallbackEntries = [
@@ -49,6 +72,7 @@
   };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
+  const refreshBtn = document.querySelector("#refresh");
   const csvUrl = "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv";
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
@@ -103,10 +127,21 @@
     }).join("");
   }
 
-  fetch(`${csvUrl}?v=${Date.now()}`, { cache:"no-store" })
-    .then(response => { if (!response.ok) throw new Error("CSV unavailable"); return response.text(); })
-    .then(text => render(parseCsv(text)))
-    .catch(() => render(fallbackEntries));
+  function loadData() {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = "Обновляю…";
+    return fetch(`${csvUrl}?v=${Date.now()}`, { cache:"no-store" })
+      .then(response => { if (!response.ok) throw new Error("CSV unavailable"); return response.text(); })
+      .then(text => render(parseCsv(text)))
+      .catch(() => render(fallbackEntries))
+      .finally(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = "Обновить";
+      });
+  }
+
+  refreshBtn.addEventListener("click", () => { loadData(); });
+  loadData();
 </script>
 </body>
 </html>
