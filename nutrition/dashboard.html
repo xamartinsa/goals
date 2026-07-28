@@ -13,19 +13,6 @@
     body { margin:0; background:#fff; color:#000; font:16px/1.4 Arial, sans-serif; }
     main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
     h1 { font-size:26px; margin:0 0 10px; }
-    .status {
-      margin:0 0 16px;
-      padding:12px 14px;
-      border:1px solid #000;
-      background:#f7f7f7;
-      font-size:14px;
-      line-height:1.35;
-    }
-    .status.ok { background:#eef7f1; border-color:#28734a; }
-    .status.warn { background:#fff6e8; border-color:#a16d00; }
-    .status.err { background:#fdeeee; border-color:#b3261e; }
-    .status.loading { background:#f0f0f0; }
-    .status strong { display:block; margin:0 0 4px; font-size:15px; }
     .meta { margin:0 0 18px; color:#555; font-size:13px; }
     .empty { margin:8px 0 0; color:#666; }
     .totals { margin:0 0 18px; }
@@ -38,11 +25,16 @@
     .meal:first-of-type { border-top:1px solid #000; }
     .food { font-weight:bold; }
     section { margin:0 0 34px; }
-    .refresh {
+    .refresh-wrap {
       position:fixed;
       right:max(16px, env(safe-area-inset-right, 0px));
       bottom:max(16px, env(safe-area-inset-bottom, 0px));
       z-index:1000;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .refresh {
       border:1px solid #000;
       border-radius:999px;
       background:#fff;
@@ -58,12 +50,16 @@
     }
     .refresh:active { background:#f2f2f2; }
     .refresh[disabled] { opacity:.65; cursor:wait; }
+    .refresh-status { color:#555; font-size:12px; white-space:nowrap; }
     @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
 <body>
 <main id="app"></main>
-<button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
+<div class="refresh-wrap">
+  <span class="refresh-status" id="refresh-status" role="status" aria-live="polite"></span>
+  <button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
+</div>
 <script>
   // Запасная копия на крайний случай. Живые данные — log.csv с этого же сайта.
   const fallbackEntries = [
@@ -100,12 +96,11 @@
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
+  const refreshStatus = document.querySelector("#refresh-status");
   const csvUrls = [
     "log.csv",
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv"
   ];
-  let lastFingerprint = "";
-  let lastEntries = [];
 
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
@@ -128,12 +123,11 @@
     }).format(new Date());
   }
 
-  function moscowNow() {
+  function moscowTime() {
     return new Date().toLocaleTimeString("ru-RU", {
       timeZone: "Europe/Moscow",
       hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
+      minute: "2-digit"
     });
   }
 
@@ -148,21 +142,6 @@
     if (date === today) return "Сегодня";
     if (date === yesterday) return "Вчера";
     return date.split("-").reverse().join(".");
-  }
-
-  function fingerprint(entries) {
-    return entries
-      .map(x => `${x.date}|${x.time}|${x.foods}|${x.kcal}|${x.p}|${x.f}|${x.c}|${x.fiber}`)
-      .sort()
-      .join("\n");
-  }
-
-  function latestMeal(entries) {
-    if (!entries.length) return null;
-    return [...entries].sort((a, b) => {
-      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-      return mealOrder(b.time) - mealOrder(a.time);
-    })[0];
   }
 
   function parseCsv(text) {
@@ -189,52 +168,11 @@
     });
   }
 
-  function statusBlock({ tone, title, lines }) {
-    return `<div class="status ${tone}" id="sync-status" role="status" aria-live="polite">
-      <strong>${escapeHtml(title)}</strong>
-      ${lines.map(line => `<div>${escapeHtml(line)}</div>`).join("")}
-    </div>`;
-  }
-
-  function render(entries, info) {
+  function render(entries) {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
     const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
-    const todayRows = entries.filter(x => x.date === today);
-    const latest = latestMeal(entries);
-    const fp = fingerprint(entries);
-    const changed = lastFingerprint && fp !== lastFingerprint;
-    const delta = entries.length - lastEntries.length;
-    const mealLine = latest
-      ? `Последний приём: ${latest.date.split("-").reverse().join(".")} ${displayTime(latest.time)} — ${latest.foods}`
-      : "Приёмов в логе нет";
-    const changeLine = !lastFingerprint
-      ? `Записей в логе: ${entries.length}`
-      : changed
-        ? `Данные обновились · записей ${entries.length}${delta ? ` (${delta > 0 ? "+" : ""}${delta})` : ""}`
-        : `Без изменений · записей ${entries.length}`;
-
-    const tone = info.ok ? (info.offline ? "warn" : "ok") : "err";
-    const title = info.loading
-      ? "Обновляю…"
-      : info.ok
-        ? (info.offline ? "Не удалось скачать свежий лог" : "Данные получены")
-        : "Ошибка обновления";
-
-    const lines = info.loading
-      ? ["Чищу кэш и запрашиваю log.csv…"]
-      : [
-          `Источник: ${info.source}`,
-          `Проверка: ${info.ok ? "ok" : "fail"}${info.detail ? ` · ${info.detail}` : ""}`,
-          changeLine,
-          `Сегодня (${today.split("-").reverse().join(".")}): ${todayRows.length} приём(а/ов), ${fmt(total(todayRows).kcal)} ккал`,
-          mealLine,
-          `Время проверки: ${moscowNow()} МСК`
-        ];
-
-    const daysHtml = info.loading && !lastEntries.length
-      ? ""
-      : dates.map(date => {
+    app.innerHTML = dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
       const t = total(rows);
       const titleDay = dayTitle(date, today, yesterday);
@@ -256,12 +194,6 @@
       ${mealsHtml}
     </section>`;
     }).join("");
-
-    app.innerHTML = statusBlock({ tone: info.loading ? "loading" : tone, title, lines }) + daysHtml;
-    if (!info.loading) {
-      lastFingerprint = fp;
-      lastEntries = entries;
-    }
   }
 
   function fetchCsv(url) {
@@ -276,48 +208,29 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const text = await response.text();
       if (!text || !text.includes("date,time,meal_type")) throw new Error("плохой CSV");
-      return { text, bytes: text.length };
+      return text;
     });
   }
 
   function loadData() {
     refreshBtn.disabled = true;
     refreshBtn.textContent = "Обновляю…";
-    render(lastEntries.length ? lastEntries : fallbackEntries, {
-      loading: true,
-      ok: true,
-      offline: false,
-      source: "…",
-      detail: ""
-    });
+    refreshStatus.textContent = "";
 
-    const errors = [];
     const tryNext = (index) => {
       if (index >= csvUrls.length) {
-        render(fallbackEntries, {
-          loading: false,
-          ok: true,
-          offline: true,
-          source: "офлайн-копия",
-          detail: errors.join("; ") || "сеть недоступна"
-        });
+        render(fallbackEntries);
+        refreshStatus.textContent = "нет сети";
         return Promise.resolve();
       }
-      const source = index === 0 ? "сайт (log.csv)" : "github raw";
       return fetchCsv(csvUrls[index])
-        .then(({ text, bytes }) => {
+        .then(text => {
           const entries = parseCsv(text);
           if (!entries.length) throw new Error("пустой лог");
-          render(entries, {
-            loading: false,
-            ok: true,
-            offline: false,
-            source,
-            detail: `${bytes} байт`
-          });
+          render(entries);
+          refreshStatus.textContent = `обновлено ${moscowTime()}`;
         })
         .catch(err => {
-          errors.push(`${source}: ${err.message || err}`);
           return tryNext(index + 1);
         });
     };
