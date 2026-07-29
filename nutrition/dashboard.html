@@ -19,6 +19,7 @@
     .totals div { margin:2px 0; }
     .pct { font-weight:bold; }
     .good { color:#28734a; }
+    .great { color:#14532d; }
     .low { color:#a16d00; }
     .high { color:#b3261e; }
     .meal { padding:10px 0; border-top:1px solid #ddd; }
@@ -95,9 +96,16 @@
   const trainingDays = new Set([0, 2, 5]); // вс, вт, пт
   const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".",",");
   const percent = (value, target) => Math.round(value / target * 20) * 5;
-  const pct = (value, target) => {
+  // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
+  // mode "ceiling": ккал/жиры/углеводы — перебор = high
+  const pct = (value, target, mode = "ceiling") => {
     const valuePct = percent(value, target);
-    const tone = valuePct < 70 ? "low" : valuePct > 110 ? "high" : "good";
+    let tone;
+    if (mode === "floor") {
+      tone = valuePct < 70 ? "low" : valuePct >= 100 ? "great" : "good";
+    } else {
+      tone = valuePct < 70 ? "low" : valuePct > 110 ? "high" : "good";
+    }
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
@@ -193,10 +201,10 @@
       <h1>${titleDay}</h1>
       <div class="totals">
         <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
-        <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p)}</div>
+        <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p, "floor")}</div>
         <div>Жиры: ${fmt(t.f)} г · ${pct(t.f, targets.f)}</div>
         <div>Углеводы: ${fmt(t.c)} г · ${pct(t.c, carbsTarget)}</div>
-        <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber)}</div>
+        <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber, "floor")}</div>
       </div>
       ${mealsHtml}
     </section>`;
