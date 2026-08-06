@@ -133,9 +133,23 @@
   const refreshBtn = document.querySelector("#refresh");
   const refreshStatus = document.querySelector("#refresh-status");
   const csvUrls = [
-    "log.csv",
-    "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv"
+    // raw обычно свежее: github.io иногда отдаёт старый log.csv из кэша Pages
+    "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
+    "log.csv"
   ];
+  const entryKey = e => `${e.date}|${e.time}|${e.foods}`;
+  const latestDate = entries => entries.reduce((max, e) => (e.date > max ? e.date : max), "");
+  const mergeEntries = (primary, secondary) => {
+    const map = new Map();
+    for (const e of secondary) map.set(entryKey(e), e);
+    for (const e of primary) map.set(entryKey(e), e);
+    return [...map.values()];
+  };
+  const fresher = (a, b) => {
+    const da = latestDate(a), db = latestDate(b);
+    if (da !== db) return da > db ? a : b;
+    return a.length >= b.length ? a : b;
+  };
 
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
@@ -252,25 +266,29 @@
     refreshBtn.textContent = "Обновляю…";
     refreshStatus.textContent = "";
 
-    const tryNext = (index) => {
-      if (index >= csvUrls.length) {
-        render(fallbackEntries);
-        refreshStatus.textContent = "нет сети";
-        return Promise.resolve();
-      }
-      return fetchCsv(csvUrls[index])
+    const fetches = csvUrls.map(url =>
+      fetchCsv(url)
         .then(text => {
           const entries = parseCsv(text);
           if (!entries.length) throw new Error("пустой лог");
-          render(entries);
-          refreshStatus.textContent = `обновлено ${moscowTime()}`;
+          return entries;
         })
-        .catch(err => {
-          return tryNext(index + 1);
-        });
-    };
+        .catch(() => null)
+    );
 
-    return tryNext(0).finally(() => {
+    return Promise.all(fetches).then(results => {
+      const loaded = results.filter(Boolean);
+      if (!loaded.length) {
+        render(fallbackEntries);
+        refreshStatus.textContent = "нет сети";
+        return;
+      }
+      const best = loaded.reduce(fresher);
+      const merged = mergeEntries(best, fallbackEntries);
+      render(merged);
+      const until = latestDate(merged).split("-").reverse().join(".");
+      refreshStatus.textContent = `обновлено ${moscowTime()} · до ${until}`;
+    }).finally(() => {
       refreshBtn.disabled = false;
       refreshBtn.textContent = "Обновить";
     });
