@@ -228,14 +228,18 @@
     const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
     app.innerHTML = dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
-      const t = total(rows);
       const titleDay = dayTitle(date, today, yesterday);
+      if (!rows.length) {
+        return `<section>
+      <h1>${titleDay}</h1>
+      <div class="empty">Пока ничего</div>
+    </section>`;
+      }
+      const t = total(rows);
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.length
-        ? rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("")
-        : `<div class="empty">Пока пусто</div>`;
+      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
