@@ -140,12 +140,14 @@
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
     "log.csv"
   ];
-  const entryKey = e => `${e.date}|${e.time}|${e.foods}`;
+  // Ключ без foods: иначе CSV и fallback с разным текстом еды дают дубли,
+  // а правки порций/названия не перекрывают старую запись.
+  const entryKey = e => `${e.date}|${e.time}`;
   const latestDate = entries => entries.reduce((max, e) => (e.date > max ? e.date : max), "");
   const mergeEntries = (primary, secondary) => {
     const map = new Map();
     for (const e of secondary) map.set(entryKey(e), e);
-    for (const e of primary) map.set(entryKey(e), e);
+    for (const e of primary) map.set(entryKey(e), e); // CSV/свежий лог побеждает
     return [...map.values()];
   };
   const fresher = (a, b) => {
