@@ -163,9 +163,11 @@
     {date:"2026-08-10",time:"19:14",foods:"Exponenta High-Pro безлактозная 250 г",kcal:150,p:30.0,f:0.0,c:6.3,fiber:0.0},
     {date:"2026-08-10",time:"22:18",foods:"Творог 5% 180 г; ½ бананового коктейля 0.5 л",kcal:386,p:38.0,f:14.0,c:27.0,fiber:0.0},
     {date:"2026-08-10",time:"00:38",foods:"Джерки ×2 пачки 90 г; кола zero",kcal:232,p:50.0,f:4.6,c:0.0,fiber:0.0},
-    {date:"2026-08-11",time:"12:51",foods:"Крылья ×3; треска в яйце; гречка; 2 салата",kcal:800,p:62.0,f:33.0,c:78.0,fiber:10.0},
-    {date:"2026-08-11",time:"13:10",foods:"Вологодский пломбир шоколадный стаканчик 100 г",kcal:210,p:4.0,f:11.5,c:22.0,fiber:0.5},
-    {date:"2026-08-11",time:"17:19",foods:"Запеканка картофельная с мясом Самокат 230 г",kcal:311,p:20.7,f:9.2,c:34.5,fiber:2.0},
+    {date:"2026-08-11",time:"12:51",meal_type:"lunch",foods:"Крылья ×3; треска в яйце; гречка; 2 салата",kcal:800,p:62.0,f:33.0,c:78.0,fiber:10.0},
+    {date:"2026-08-11",time:"13:10",meal_type:"snack",foods:"Вологодский пломбир шоколадный стаканчик 100 г",kcal:210,p:4.0,f:11.5,c:22.0,fiber:0.5},
+    {date:"2026-08-11",time:"17:19",meal_type:"snack",foods:"Запеканка картофельная с мясом Самокат 230 г",kcal:311,p:20.7,f:9.2,c:34.5,fiber:2.0},
+    {date:"2026-08-12",time:"13:33",meal_type:"lunch",foods:"Бун ча с курицей; шашлычок; лапша; соус; ростки",kcal:855,p:69.0,f:24.0,c:90.0,fiber:4.5},
+    {date:"2026-08-12",time:"13:33",meal_type:"snack",foods:"Пломбир двухслойный шоколадный 105 г",kcal:258,p:4.1,f:15.1,c:26.5,fiber:0.5},
   ];
   const targets = {
     restKcal:2250, trainingKcal:2500,
@@ -196,15 +198,20 @@
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
     "log.csv"
   ];
-  // Ключ без foods: иначе CSV и fallback с разным текстом еды дают дубли,
-  // а правки порций/названия не перекрывают старую запись.
-  const entryKey = e => `${e.date}|${e.time}`;
+  // CSV — источник истины целиком (все строки, даже несколько в одну минуту).
+  // Fallback дополняет только минуты, которых в CSV ещё нет — иначе старый
+  // ключ date|time схлопывал обед+мороженое в 13:33 в одну запись.
   const latestDate = entries => entries.reduce((max, e) => (e.date > max ? e.date : max), "");
   const mergeEntries = (primary, secondary) => {
-    const map = new Map();
-    for (const e of secondary) map.set(entryKey(e), e);
-    for (const e of primary) map.set(entryKey(e), e); // CSV/свежий лог побеждает
-    return [...map.values()];
+    const out = [...primary];
+    const coveredSlots = new Set(primary.map(e => `${e.date}|${e.time}`));
+    for (const e of secondary) {
+      const slot = `${e.date}|${e.time}`;
+      if (coveredSlots.has(slot)) continue;
+      out.push(e);
+      coveredSlots.add(slot);
+    }
+    return out;
   };
   const fresher = (a, b) => {
     const da = latestDate(a), db = latestDate(b);
@@ -272,7 +279,7 @@
     const [headers, ...data] = rows;
     return data.filter(row => row.length === headers.length).map(row => {
       const item = Object.fromEntries(headers.map((key, index) => [key, row[index]]));
-      return { date:item.date, time:item.time, foods:item.foods,
+      return { date:item.date, time:item.time, meal_type:item.meal_type || "", foods:item.foods,
         kcal:Number(item.kcal), p:Number(item.protein_g), f:Number(item.fat_g),
         c:Number(item.carbs_g), fiber:Number(item.fiber_g) };
     });
