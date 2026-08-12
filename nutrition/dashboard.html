@@ -6,32 +6,34 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Питание">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#141414">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=cursor1">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=cursor1">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=cursor1">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=cursor1">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=cursor-light1">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=cursor-light1">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=cursor-light1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=cursor-light1">
   <style>
     :root {
-      --bg:#141414;
-      --panel:#1c1c1c;
-      --panel-2:#222222;
-      --ink:#e6e6e6;
-      --muted:#8b8b8b;
-      --line:#2c2c2c;
-      --line-strong:#3a3a3a;
-      --accent:#7193ff;
-      --good:#3fb950;
-      --great:#56d364;
-      --low:#d29922;
-      --high:#f85149;
+      --bg:#f6f8fa;
+      --panel:#ffffff;
+      --panel-2:#f6f8fa;
+      --ink:#1f2328;
+      --muted:#656d76;
+      --line:#d0d7de;
+      --line-strong:#afb8c1;
+      --accent:#0969da;
+      --btn:#1f2328;
+      --btn-text:#ffffff;
+      --good:#1a7f37;
+      --great:#116329;
+      --low:#9a6700;
+      --high:#cf222e;
       --sans:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
       --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
@@ -39,9 +41,7 @@
     body {
       margin:0;
       min-height:100dvh;
-      background:
-        radial-gradient(1200px 500px at 10% -10%, rgba(113,147,255,.08), transparent 55%),
-        var(--bg);
+      background:var(--bg);
       color:var(--ink);
       font:15px/1.5 var(--sans);
       -webkit-font-smoothing:antialiased;
@@ -51,7 +51,7 @@
       position:sticky; top:0; z-index:20;
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       margin:0 -14px 18px; padding:12px 14px;
-      background:rgba(20,20,20,.86);
+      background:rgba(255,255,255,.92);
       backdrop-filter:blur(12px);
       -webkit-backdrop-filter:blur(12px);
       border-bottom:1px solid var(--line);
@@ -60,13 +60,15 @@
       display:flex; align-items:center; gap:10px;
       font:600 15px/1 var(--mono);
       letter-spacing:-0.02em;
+      color:var(--ink);
     }
     .brand-mark {
       width:22px; height:22px; border-radius:6px;
-      background:linear-gradient(180deg, #2a2a2a, #1a1a1a);
-      border:1px solid var(--line-strong);
+      background:#fff;
+      border:1px solid var(--line);
       display:grid; place-items:center;
       color:var(--accent); font:600 13px/1 var(--mono);
+      box-shadow:0 1px 0 rgba(31,35,40,.04);
     }
     .brand span { color:var(--muted); font-weight:400; }
     .top-meta { color:var(--muted); font:12px/1.2 var(--mono); text-align:right; }
@@ -77,17 +79,19 @@
       border-radius:12px;
       margin:0 0 14px;
       overflow:hidden;
+      box-shadow:0 1px 0 rgba(31,35,40,.04);
     }
     .day-head {
       display:flex; align-items:baseline; justify-content:space-between; gap:10px;
       padding:14px 16px 10px;
       border-bottom:1px solid var(--line);
-      background:linear-gradient(180deg, var(--panel-2), var(--panel));
+      background:var(--panel-2);
     }
     h1 {
       margin:0;
       font:600 18px/1.2 var(--sans);
       letter-spacing:-0.02em;
+      color:var(--ink);
     }
     .day-tag {
       color:var(--muted);
@@ -105,7 +109,7 @@
     .totals div {
       display:flex; justify-content:space-between; gap:12px;
       padding:8px 16px;
-      border-bottom:1px solid rgba(44,44,44,.65);
+      border-bottom:1px solid #eaeef2;
     }
     .totals div:last-child { border-bottom:0; }
     .totals .label { color:var(--muted); }
@@ -118,6 +122,7 @@
     .meal {
       padding:12px 16px;
       border-top:1px solid var(--line);
+      background:#fff;
     }
     .meal:first-of-type { border-top:0; }
     .meal-time {
@@ -144,12 +149,12 @@
       align-items:center;
       gap:10px;
       padding:8px 8px 8px 14px;
-      background:rgba(28,28,28,.92);
-      border:1px solid var(--line-strong);
+      background:rgba(255,255,255,.94);
+      border:1px solid var(--line);
       border-radius:999px;
       backdrop-filter:blur(14px);
       -webkit-backdrop-filter:blur(14px);
-      box-shadow:0 10px 40px rgba(0,0,0,.35);
+      box-shadow:0 8px 28px rgba(31,35,40,.08);
       max-width:calc(100vw - 28px);
     }
     .refresh-status {
@@ -162,19 +167,20 @@
     }
     .refresh {
       appearance:none;
-      border:0;
+      border:1px solid rgba(31,35,40,.15);
       border-radius:999px;
-      background:var(--accent);
-      color:#0b1020;
+      background:var(--btn);
+      color:var(--btn-text);
       font:600 13px/1 var(--sans);
       padding:11px 16px;
       min-height:40px;
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
-      transition:filter .15s ease, transform .1s ease;
+      box-shadow:0 1px 0 rgba(31,35,40,.04);
+      transition:background .15s ease, transform .1s ease;
     }
-    .refresh:hover { filter:brightness(1.06); }
+    .refresh:hover { background:#2f363d; }
     .refresh:active { transform:scale(.98); }
     .refresh[disabled] { opacity:.55; cursor:wait; }
     @media (max-width:520px) {
