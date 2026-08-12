@@ -244,14 +244,6 @@
     }).format(new Date());
   }
 
-  function moscowTime() {
-    return new Date().toLocaleTimeString("ru-RU", {
-      timeZone: "Europe/Moscow",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
-
   function shiftDate(isoDate, days) {
     const [y, m, d] = isoDate.split("-").map(Number);
     const dt = new Date(Date.UTC(y, m - 1, d));
