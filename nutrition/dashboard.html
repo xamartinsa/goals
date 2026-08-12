@@ -6,50 +6,59 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Питание">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#000000">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Питание</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=bw1">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=bw1">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=bw1">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=bw1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=rollback1">
   <style>
+    :root {
+      --ink:#000;
+      --muted:#555;
+      --line:#ccc;
+      --bg:#fff;
+      --card:#fff;
+      --good:#28734a;
+      --great:#14532d;
+      --low:#a16d00;
+      --high:#b3261e;
+      --font:"IBM Plex Mono", ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+    }
     * { box-sizing:border-box; }
     body {
       margin:0;
-      background:#fff;
-      color:#000;
-      font:16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      font:16px/1.45 var(--font);
+      font-feature-settings:"ss01" 0;
+      letter-spacing:-0.01em;
     }
-    main {
-      max-width:640px;
-      margin:0 auto;
-      padding:24px 20px calc(80px + env(safe-area-inset-bottom, 0px));
-    }
+    main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
     h1 {
-      margin:0 0 12px;
-      font-size:28px;
+      font-size:26px;
       font-weight:700;
+      margin:0 0 10px;
       letter-spacing:-0.03em;
     }
-    .empty { color:#000; opacity:.45; margin-top:8px; }
-    .totals { margin:0 0 20px; }
-    .totals div { margin:3px 0; }
+    .meta { margin:0 0 18px; color:var(--muted); font-size:13px; }
+    .empty { margin:8px 0 0; color:var(--muted); }
+    .totals { margin:0 0 18px; }
+    .totals div { margin:2px 0; }
     .pct { font-weight:700; }
-    .good, .great, .low, .high { color:#000; }
-    .meal {
-      padding:12px 0;
-      border-top:1px solid #000;
-    }
-    .meal:first-of-type { border-top:1px solid #000; }
-    .meal-time { opacity:.5; font-size:13px; margin-bottom:2px; }
-    .food { font-weight:600; margin-bottom:2px; }
-    .meal-macros { opacity:.55; font-size:13px; }
-    section { margin:0 0 36px; }
-    .day-head { margin-bottom:4px; }
-    .day-tag { display:none; }
+    .good { color:var(--good); }
+    .great { color:var(--great); }
+    .low { color:var(--low); }
+    .high { color:var(--high); }
+    .meal { padding:10px 0; border-top:1px solid var(--line); }
+    .meal:first-of-type { border-top:1px solid var(--ink); }
+    .food { font-weight:600; }
+    section { margin:0 0 34px; }
     .refresh-wrap {
       position:fixed;
       right:max(16px, env(safe-area-inset-right, 0px));
@@ -57,32 +66,28 @@
       z-index:1000;
       display:flex;
       align-items:center;
-      gap:10px;
-    }
-    .refresh-status {
-      font-size:12px;
-      opacity:.45;
-      white-space:nowrap;
+      gap:8px;
     }
     .refresh {
-      appearance:none;
-      border:1px solid #000;
-      border-radius:999px;
-      background:#fff;
-      color:#000;
-      font:600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      padding:12px 18px;
-      min-height:44px;
+      border:1px solid var(--ink);
+      border-radius:2px;
+      background:var(--card);
+      color:var(--ink);
+      font:600 14px/1 var(--font);
+      letter-spacing:0.02em;
+      text-transform:uppercase;
+      padding:14px 18px;
+      min-height:48px;
+      min-width:48px;
+      box-shadow:2px 2px 0 rgba(36,52,42,.12);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
     }
-    .refresh:active { background:#000; color:#fff; }
-    .refresh[disabled] { opacity:.4; cursor:wait; }
-    @media (max-width:520px) {
-      body { font-size:15px; }
-      h1 { font-size:24px; }
-    }
+    .refresh:active { background:#e8ece6; }
+    .refresh[disabled] { opacity:.65; cursor:wait; }
+    .refresh-status { color:var(--muted); font-size:12px; white-space:nowrap; }
+    @media (max-width:520px) { body { font-size:14px; } h1 { font-size:22px; } }
   </style>
 </head>
 <body>
@@ -287,7 +292,6 @@
     app.innerHTML = dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
       const titleDay = dayTitle(date, today, yesterday);
-      const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       if (!rows.length) {
         return `<section>
       <h1>${titleDay}</h1>
@@ -295,9 +299,10 @@
     </section>`;
       }
       const t = total(rows);
+      const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div class="meal-macros">${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
+      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
