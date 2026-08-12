@@ -11,193 +11,82 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <title>Питание</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=cursor-light1">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=cursor-light1">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=cursor-light1">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=cursor-light1">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=bw1">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=bw1">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=bw1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=bw1">
   <style>
-    :root {
-      --bg:#f6f8fa;
-      --panel:#ffffff;
-      --panel-2:#f6f8fa;
-      --ink:#1f2328;
-      --muted:#656d76;
-      --line:#d0d7de;
-      --line-strong:#afb8c1;
-      --accent:#0969da;
-      --btn:#1f2328;
-      --btn-text:#ffffff;
-      --good:#1a7f37;
-      --great:#116329;
-      --low:#9a6700;
-      --high:#cf222e;
-      --sans:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-      --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    }
     * { box-sizing:border-box; }
     body {
       margin:0;
-      min-height:100dvh;
-      background:var(--bg);
-      color:var(--ink);
-      font:15px/1.5 var(--sans);
-      -webkit-font-smoothing:antialiased;
-    }
-    .shell { max-width:760px; margin:0 auto; padding:0 14px calc(72px + env(safe-area-inset-bottom, 0px)); }
-    .topbar {
-      position:sticky; top:0; z-index:20;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      margin:0 -14px 18px; padding:12px 14px;
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(12px);
-      -webkit-backdrop-filter:blur(12px);
-      border-bottom:1px solid var(--line);
-    }
-    .brand {
-      display:flex; align-items:center; gap:10px;
-      font:600 15px/1 var(--mono);
-      letter-spacing:-0.02em;
-      color:var(--ink);
-    }
-    .brand-mark {
-      width:22px; height:22px; border-radius:6px;
       background:#fff;
-      border:1px solid var(--line);
-      display:grid; place-items:center;
-      color:var(--accent); font:600 13px/1 var(--mono);
-      box-shadow:0 1px 0 rgba(31,35,40,.04);
+      color:#000;
+      font:16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    .brand span { color:var(--muted); font-weight:400; }
-    .top-meta { color:var(--muted); font:12px/1.2 var(--mono); text-align:right; }
-    main { padding-top:4px; }
-    section {
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      margin:0 0 14px;
-      overflow:hidden;
-      box-shadow:0 1px 0 rgba(31,35,40,.04);
-    }
-    .day-head {
-      display:flex; align-items:baseline; justify-content:space-between; gap:10px;
-      padding:14px 16px 10px;
-      border-bottom:1px solid var(--line);
-      background:var(--panel-2);
+    main {
+      max-width:640px;
+      margin:0 auto;
+      padding:24px 20px calc(80px + env(safe-area-inset-bottom, 0px));
     }
     h1 {
-      margin:0;
-      font:600 18px/1.2 var(--sans);
-      letter-spacing:-0.02em;
-      color:var(--ink);
+      margin:0 0 12px;
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:-0.03em;
     }
-    .day-tag {
-      color:var(--muted);
-      font:12px/1 var(--mono);
-    }
-    .empty { padding:18px 16px; color:var(--muted); font:13px/1.4 var(--mono); }
-    .totals {
-      display:grid;
-      grid-template-columns:1fr;
-      gap:0;
-      padding:4px 0;
-      border-bottom:1px solid var(--line);
-      font:13px/1.35 var(--mono);
-    }
-    .totals div {
-      display:flex; justify-content:space-between; gap:12px;
-      padding:8px 16px;
-      border-bottom:1px solid #eaeef2;
-    }
-    .totals div:last-child { border-bottom:0; }
-    .totals .label { color:var(--muted); }
-    .totals .value { color:var(--ink); }
-    .pct { font-weight:600; margin-left:8px; }
-    .good { color:var(--good); }
-    .great { color:var(--great); }
-    .low { color:var(--low); }
-    .high { color:var(--high); }
+    .empty { color:#000; opacity:.45; margin-top:8px; }
+    .totals { margin:0 0 20px; }
+    .totals div { margin:3px 0; }
+    .pct { font-weight:700; }
+    .good, .great, .low, .high { color:#000; }
     .meal {
-      padding:12px 16px;
-      border-top:1px solid var(--line);
-      background:#fff;
+      padding:12px 0;
+      border-top:1px solid #000;
     }
-    .meal:first-of-type { border-top:0; }
-    .meal-time {
-      color:var(--accent);
-      font:12px/1.2 var(--mono);
-      margin-bottom:4px;
-    }
-    .food {
-      font:500 14px/1.35 var(--sans);
-      color:var(--ink);
-      margin-bottom:4px;
-    }
-    .meal-macros {
-      color:var(--muted);
-      font:12px/1.35 var(--mono);
-    }
+    .meal:first-of-type { border-top:1px solid #000; }
+    .meal-time { opacity:.5; font-size:13px; margin-bottom:2px; }
+    .food { font-weight:600; margin-bottom:2px; }
+    .meal-macros { opacity:.55; font-size:13px; }
+    section { margin:0 0 36px; }
+    .day-head { margin-bottom:4px; }
+    .day-tag { display:none; }
     .refresh-wrap {
       position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:max(14px, env(safe-area-inset-bottom, 0px));
+      right:max(16px, env(safe-area-inset-right, 0px));
+      bottom:max(16px, env(safe-area-inset-bottom, 0px));
       z-index:1000;
       display:flex;
       align-items:center;
       gap:10px;
-      padding:8px 8px 8px 14px;
-      background:rgba(255,255,255,.94);
-      border:1px solid var(--line);
-      border-radius:999px;
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-      box-shadow:0 8px 28px rgba(31,35,40,.08);
-      max-width:calc(100vw - 28px);
     }
     .refresh-status {
-      color:var(--muted);
-      font:11px/1.2 var(--mono);
+      font-size:12px;
+      opacity:.45;
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:46vw;
     }
     .refresh {
       appearance:none;
-      border:1px solid rgba(31,35,40,.15);
+      border:1px solid #000;
       border-radius:999px;
-      background:var(--btn);
-      color:var(--btn-text);
-      font:600 13px/1 var(--sans);
-      padding:11px 16px;
-      min-height:40px;
+      background:#fff;
+      color:#000;
+      font:600 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding:12px 18px;
+      min-height:44px;
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
-      box-shadow:0 1px 0 rgba(31,35,40,.04);
-      transition:background .15s ease, transform .1s ease;
     }
-    .refresh:hover { background:#2f363d; }
-    .refresh:active { transform:scale(.98); }
-    .refresh[disabled] { opacity:.55; cursor:wait; }
+    .refresh:active { background:#000; color:#fff; }
+    .refresh[disabled] { opacity:.4; cursor:wait; }
     @media (max-width:520px) {
-      body { font-size:14px; }
-      h1 { font-size:17px; }
-      .refresh-status { max-width:38vw; }
+      body { font-size:15px; }
+      h1 { font-size:24px; }
     }
   </style>
 </head>
 <body>
-<div class="shell">
-  <header class="topbar">
-    <div class="brand"><div class="brand-mark" aria-hidden="true">&gt;</div>nutrition <span>/ log</span></div>
-    <div class="top-meta" id="top-meta">МСК</div>
-  </header>
-  <main id="app"></main>
-</div>
+<main id="app"></main>
 <div class="refresh-wrap">
   <span class="refresh-status" id="refresh-status" role="status" aria-live="polite"></span>
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
@@ -400,25 +289,24 @@
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
       const titleDay = dayTitle(date, today, yesterday);
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
-      const dayKind = isTrainingDay ? "training" : "rest";
       if (!rows.length) {
         return `<section>
-      <div class="day-head"><h1>${titleDay}</h1><div class="day-tag">${dayKind}</div></div>
-      <div class="empty">// пока ничего</div>
+      <h1>${titleDay}</h1>
+      <div class="empty">Пока ничего</div>
     </section>`;
       }
       const t = total(rows);
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div class="meal-macros">${fmt(x.kcal)} kcal · P ${fmt(x.p)} · F ${fmt(x.f)} · C ${fmt(x.c)} · fiber ${fmt(x.fiber)}</div></div>`).join("");
+      const mealsHtml = rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div class="meal-macros">${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
       return `<section>
-      <div class="day-head"><h1>${titleDay}</h1><div class="day-tag">${dayKind}</div></div>
+      <h1>${titleDay}</h1>
       <div class="totals">
-        <div><span class="label">calories</span><span class="value">${fmt(t.kcal)} kcal ${pct(t.kcal, kcalTarget)}</span></div>
-        <div><span class="label">protein</span><span class="value">${fmt(t.p)} g ${pct(t.p, targets.p, "floor")}</span></div>
-        <div><span class="label">fat</span><span class="value">${fmt(t.f)} g ${pct(t.f, targets.f)}</span></div>
-        <div><span class="label">carbs</span><span class="value">${fmt(t.c)} g ${pct(t.c, carbsTarget)}</span></div>
-        <div><span class="label">fiber</span><span class="value">${fmt(t.fiber)} g ${pct(t.fiber, targets.fiber, "floor")}</span></div>
+        <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
+        <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p, "floor")}</div>
+        <div>Жиры: ${fmt(t.f)} г · ${pct(t.f, targets.f)}</div>
+        <div>Углеводы: ${fmt(t.c)} г · ${pct(t.c, carbsTarget)}</div>
+        <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber, "floor")}</div>
       </div>
       ${mealsHtml}
     </section>`;
@@ -460,16 +348,14 @@
       const loaded = results.filter(Boolean);
       if (!loaded.length) {
         render(fallbackEntries);
-        refreshStatus.textContent = "offline";
-        if (topMeta) topMeta.textContent = "offline · МСК";
+        refreshStatus.textContent = "нет сети";
         return;
       }
       const best = loaded.reduce(fresher);
       const merged = mergeEntries(best, fallbackEntries);
       render(merged);
       const until = latestDate(merged).split("-").reverse().join(".");
-      refreshStatus.textContent = `${moscowTime()} · until ${until}`;
-      if (topMeta) topMeta.textContent = `synced ${moscowTime()} · МСК`;
+      refreshStatus.textContent = `обновлено ${moscowTime()} · до ${until}`;
     }).finally(() => {
       refreshBtn.disabled = false;
       refreshBtn.textContent = "Обновить";
