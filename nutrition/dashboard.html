@@ -360,7 +360,14 @@
     });
   }
 
-  refreshBtn.addEventListener("click", () => { loadData(); });
+  refreshBtn.addEventListener("click", () => {
+    refreshBtn.disabled = true;
+    refreshBtn.classList.add("is-loading");
+    // Жёсткое обновление: новый URL + bypass HTTP-кэша страницы/ассетов.
+    const url = new URL(window.location.href);
+    url.searchParams.set("r", String(Date.now()));
+    window.location.replace(url.toString());
+  });
   loadData();
 </script>
 </body>
