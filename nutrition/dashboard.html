@@ -39,7 +39,7 @@
       font-feature-settings:"ss01" 0;
       letter-spacing:-0.01em;
     }
-    main { max-width:720px; margin:0 auto; padding:20px 16px calc(50px + 56px + env(safe-area-inset-bottom, 0px)); }
+    main { max-width:720px; margin:0 auto; padding:20px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
     h1 {
       font-size:26px;
       font-weight:700;
@@ -61,40 +61,45 @@
     section { margin:0 0 34px; }
     .refresh-wrap {
       position:fixed;
-      right:max(16px, env(safe-area-inset-right, 0px));
-      bottom:max(16px, env(safe-area-inset-bottom, 0px));
+      top:max(12px, env(safe-area-inset-top, 0px));
+      right:max(12px, env(safe-area-inset-right, 0px));
       z-index:1000;
-      display:flex;
-      align-items:center;
-      gap:8px;
     }
     .refresh {
-      border:1px solid var(--ink);
-      border-radius:2px;
-      background:var(--card);
-      color:var(--ink);
-      font:600 14px/1 var(--font);
-      letter-spacing:0.02em;
-      text-transform:uppercase;
-      padding:14px 18px;
-      min-height:48px;
-      min-width:48px;
-      box-shadow:2px 2px 0 rgba(36,52,42,.12);
+      appearance:none;
+      width:44px;
+      height:44px;
+      padding:0;
+      border:1px solid rgba(255,255,255,.85);
+      border-radius:50%;
+      background:rgba(200,200,200,.45);
+      color:#000;
+      display:grid;
+      place-items:center;
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      box-shadow:0 1px 8px rgba(0,0,0,.06);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
     }
-    .refresh:active { background:#e8ece6; }
-    .refresh[disabled] { opacity:.65; cursor:wait; }
-    .refresh-status { color:var(--muted); font-size:12px; white-space:nowrap; }
+    .refresh svg { width:20px; height:20px; display:block; }
+    .refresh:active { background:rgba(180,180,180,.55); }
+    .refresh[disabled] { opacity:.55; cursor:wait; }
+    .refresh.is-loading svg { animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
     @media (max-width:520px) { body { font-size:14px; } h1 { font-size:22px; } }
   </style>
 </head>
 <body>
 <main id="app"></main>
 <div class="refresh-wrap">
-  <span class="refresh-status" id="refresh-status" role="status" aria-live="polite"></span>
-  <button type="button" class="refresh" id="refresh" aria-label="Обновить данные">Обновить</button>
+  <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+      <polyline points="21 3 21 9 15 9"/>
+    </svg>
+  </button>
 </div>
 <script>
   // Запасная копия на крайний случай. Живые данные — log.csv с этого же сайта.
@@ -192,7 +197,6 @@
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
-  const refreshStatus = document.querySelector("#refresh-status");
   const csvUrls = [
     // raw обычно свежее: github.io иногда отдаёт старый log.csv из кэша Pages
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
@@ -335,8 +339,8 @@
 
   function loadData() {
     refreshBtn.disabled = true;
-    refreshBtn.textContent = "Обновляю…";
-    refreshStatus.textContent = "";
+    refreshBtn.classList.add("is-loading");
+    refreshBtn.setAttribute("aria-busy", "true");
 
     const fetches = csvUrls.map(url =>
       fetchCsv(url)
@@ -352,17 +356,15 @@
       const loaded = results.filter(Boolean);
       if (!loaded.length) {
         render(fallbackEntries);
-        refreshStatus.textContent = "нет сети";
         return;
       }
       const best = loaded.reduce(fresher);
       const merged = mergeEntries(best, fallbackEntries);
       render(merged);
-      const until = latestDate(merged).split("-").reverse().join(".");
-      refreshStatus.textContent = `обновлено ${moscowTime()} · до ${until}`;
     }).finally(() => {
       refreshBtn.disabled = false;
-      refreshBtn.textContent = "Обновить";
+      refreshBtn.classList.remove("is-loading");
+      refreshBtn.removeAttribute("aria-busy");
     });
   }
 
