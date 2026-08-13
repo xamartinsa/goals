@@ -31,6 +31,7 @@
       --font:"IBM Plex Mono", ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
     }
     * { box-sizing:border-box; }
+    html, body { height:100%; height:100dvh; }
     body {
       margin:0;
       background:var(--bg);
@@ -38,8 +39,39 @@
       font:16px/1.45 var(--font);
       font-feature-settings:"ss01" 0;
       letter-spacing:-0.01em;
+      overflow:hidden;
     }
-    main { max-width:720px; margin:0 auto; padding:20px 16px calc(80px + env(safe-area-inset-bottom, 0px)); }
+    /* Камера как в заставке: плоскость уезжает вверх и сужается к горизонту. */
+    .crawl-stage {
+      height:100%;
+      height:100dvh;
+      overflow-x:hidden;
+      overflow-y:auto;
+      perspective:300px;
+      perspective-origin:50% 0%;
+      -webkit-overflow-scrolling:touch;
+      touch-action:pan-y;
+    }
+    .crawl-stage::before {
+      content:"";
+      position:sticky;
+      top:0;
+      display:block;
+      height:16vh;
+      margin-bottom:-16vh;
+      background:linear-gradient(to bottom, #fff 15%, rgba(255,255,255,0));
+      pointer-events:none;
+      z-index:5;
+    }
+    main {
+      max-width:720px;
+      margin:0 auto;
+      padding:10vh 36px calc(42vh + env(safe-area-inset-bottom, 0px));
+      transform:rotateX(28deg);
+      transform-origin:50% 0;
+      transform-style:preserve-3d;
+      will-change:transform;
+    }
     h1 {
       font-size:26px;
       font-weight:700;
@@ -97,7 +129,9 @@
   </style>
 </head>
 <body>
+<div class="crawl-stage">
 <main id="app"></main>
+</div>
 <div class="refresh-wrap">
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
     <!-- Mosaic refresh: black tesserae, Pompeii-like -->
