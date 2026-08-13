@@ -12,7 +12,7 @@
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
@@ -21,14 +21,14 @@
     :root {
       --ink:#000;
       --muted:#555;
-      --line:#ccc;
+      --line:#e2e2e2;
       --bg:#fff;
       --card:#fff;
       --good:#28734a;
       --great:#14532d;
       --low:#a16d00;
       --high:#b3261e;
-      --font:"Nunito", ui-rounded, "Segoe UI", sans-serif;
+      --font:"Inter", system-ui, sans-serif;
     }
     * { box-sizing:border-box; }
     html, body { min-height:100%; }
@@ -42,7 +42,7 @@
     main {
       max-width:720px;
       margin:0 auto;
-      padding:22px 28px calc(120px + env(safe-area-inset-bottom, 0px));
+      padding:22px 14px calc(120px + env(safe-area-inset-bottom, 0px));
     }
     h1 {
       font-size:26px;
@@ -99,7 +99,7 @@
     .low { color:var(--low); }
     .high { color:var(--high); }
     .meal { padding:10px 0; border-top:1px solid var(--line); }
-    .meal:first-of-type { border-top:1px solid var(--ink); }
+    .meal:first-of-type { border-top:1px solid var(--line); }
     .food { font-weight:600; }
     section { margin:0 0 34px; }
     .refresh-wrap {
@@ -320,10 +320,12 @@
     return dt.toISOString().slice(0, 10);
   }
 
+  const monthNames = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   function dayTitle(date, today, yesterday) {
     if (date === today) return "Сегодня";
     if (date === yesterday) return "Вчера";
-    return date.split("-").reverse().join(".");
+    const [y, m, d] = date.split("-").map(Number);
+    return `${d} ${monthNames[m - 1]}`;
   }
 
   function parseCsv(text) {
