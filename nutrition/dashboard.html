@@ -41,13 +41,13 @@
       letter-spacing:-0.01em;
       overflow:hidden;
     }
-    /* Камера как в заставке: плоскость уезжает вверх и сужается к горизонту. */
+    /* Нижние 2/3 экрана ровные; сход к горизонту только в верхней трети. */
     .crawl-stage {
       height:100%;
       height:100dvh;
       overflow-x:hidden;
       overflow-y:auto;
-      perspective:300px;
+      perspective:360px;
       perspective-origin:50% 0%;
       -webkit-overflow-scrolling:touch;
       touch-action:pan-y;
@@ -57,21 +57,20 @@
       position:sticky;
       top:0;
       display:block;
-      height:16vh;
-      margin-bottom:-16vh;
-      background:linear-gradient(to bottom, #fff 15%, rgba(255,255,255,0));
+      height:12vh;
+      margin-bottom:-12vh;
+      background:linear-gradient(to bottom, #fff 20%, rgba(255,255,255,0));
       pointer-events:none;
       z-index:5;
     }
     main {
       max-width:720px;
       margin:0 auto;
-      padding:10vh 36px calc(42vh + env(safe-area-inset-bottom, 0px));
-      transform:rotateX(28deg);
-      transform-origin:50% 0;
+      padding:22px 28px calc(120px + env(safe-area-inset-bottom, 0px));
       transform-style:preserve-3d;
-      will-change:transform;
     }
+    section { transform-style:preserve-3d; }
+    section > * { will-change:transform; }
     h1 {
       font-size:26px;
       font-weight:700;
@@ -346,6 +345,40 @@
     });
   }
 
+  const stage = document.querySelector(".crawl-stage");
+  let crawlRaf = 0;
+  function updateCrawl() {
+    const vh = stage.clientHeight;
+    const fold = vh / 3;
+    const stageTop = stage.getBoundingClientRect().top;
+    for (const el of app.querySelectorAll("section > *")) {
+      const rect = el.getBoundingClientRect();
+      const y = rect.top - stageTop;
+      if (rect.bottom <= stageTop || y >= vh) {
+        el.style.transform = "";
+        continue;
+      }
+      if (y >= fold) {
+        el.style.transform = "none";
+        el.style.transformOrigin = "";
+        continue;
+      }
+      const t = Math.max(0, Math.min(1, (fold - y) / fold));
+      const angle = t * t * 34;
+      el.style.transformOrigin = "50% 100%";
+      el.style.transform = `perspective(360px) rotateX(${angle.toFixed(2)}deg)`;
+    }
+  }
+  function requestCrawl() {
+    if (crawlRaf) return;
+    crawlRaf = requestAnimationFrame(() => {
+      crawlRaf = 0;
+      updateCrawl();
+    });
+  }
+  stage.addEventListener("scroll", requestCrawl, { passive: true });
+  window.addEventListener("resize", requestCrawl);
+
   function render(entries) {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
@@ -376,6 +409,7 @@
       ${mealsHtml}
     </section>`;
     }).join("");
+    requestCrawl();
   }
 
   function fetchCsv(url) {
