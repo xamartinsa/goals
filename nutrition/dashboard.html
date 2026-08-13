@@ -39,7 +39,7 @@
       font-feature-settings:"ss01" 0;
       letter-spacing:-0.01em;
     }
-    main { max-width:720px; margin:0 auto; padding:20px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+    main { max-width:720px; margin:0 auto; padding:20px 16px calc(80px + env(safe-area-inset-bottom, 0px)); }
     h1 {
       font-size:26px;
       font-weight:700;
@@ -66,8 +66,8 @@
     section { margin:0 0 34px; }
     .refresh-wrap {
       position:fixed;
-      top:max(12px, env(safe-area-inset-top, 0px));
-      right:max(12px, env(safe-area-inset-right, 0px));
+      bottom:max(16px, env(safe-area-inset-bottom, 0px));
+      right:max(16px, env(safe-area-inset-right, 0px));
       z-index:1000;
     }
     .refresh {
