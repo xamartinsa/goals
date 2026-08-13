@@ -60,30 +60,11 @@
       margin:0 0 10px;
     }
     .day-actor {
-      position:relative;
-      flex:0 0 72px;
-      width:72px;
-      height:96px;
+      flex:0 0 88px;
+      width:88px;
+      height:88px;
     }
-    .day-actor img {
-      display:block;
-      width:72px;
-      height:96px;
-      object-fit:contain;
-      object-position:bottom center;
-    }
-    .day-actor[data-mood="sleep"]::after {
-      content:"zzz";
-      position:absolute;
-      top:2px;
-      right:-2px;
-      font:700 12px var(--font);
-      animation:actor-zzz 2.4s ease-in-out infinite;
-    }
-    @keyframes actor-zzz {
-      0%, 100% { opacity:.2; }
-      50% { opacity:1; }
-    }
+    .day-actor svg { display:block; width:100%; height:100%; }
     .meta { margin:0 0 18px; color:var(--muted); font-size:13px; }
     .empty { margin:8px 0 0; color:var(--muted); }
     .totals { margin:0 0 18px; }
@@ -172,6 +153,7 @@
     </svg>
   </button>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
 <script>
   // Запасная копия на крайний случай. Живые данные — log.csv с этого же сайта.
   const fallbackEntries = [
@@ -354,17 +336,17 @@
     });
   }
 
-  // Kenney Toon Characters (CC0) — один персонаж, все кадры 96×128
-  const ACTOR_BASE = "vendor/kenney-toon-characters/male/character_malePerson_";
-  const ACTOR_FRAMES = {
-    sleep: { frames: ["fallDown"], ms: 900 },
-    squat: { frames: ["duck", "idle"], ms: 420 },
-    walk: { frames: ["walk0","walk1","walk2","walk3","walk4","walk5","walk6","walk7"], ms: 90 },
-    idle: { frames: ["idle", "think", "idle", "talk"], ms: 700 },
-    cheer: { frames: ["cheer0", "cheer1"], ms: 380 },
-    lift: { frames: ["hold", "wide"], ms: 480 }
+  // Sven orb (MIT, 47network) — плавные Lottie-петли 60–150 кадров
+  const ACTOR_LOTTIE = {
+    sleep: "vendor/sven/sven_sleeping.json",
+    squat: "vendor/sven/sven_working.json",
+    walk: "vendor/sven/sven_listening.json",
+    idle: "vendor/sven/sven_idle.json",
+    cheer: "vendor/sven/sven_celebrating.json",
+    lift: "vendor/sven/sven_thinking.json"
   };
-  const poseUrl = name => `${ACTOR_BASE}${name}.png`;
+  let actorAnims = [];
+  let actorObserver = null;
   function actorMood(date, totals, kcalTarget, empty) {
     if (empty) return "idle";
     if (totals.kcal / kcalTarget >= 1.12) return "sleep";
@@ -376,23 +358,29 @@
     return "idle";
   }
   function mountActors() {
+    actorAnims.forEach(anim => { try { anim.destroy(); } catch (e) {} });
+    actorAnims = [];
+    if (actorObserver) actorObserver.disconnect();
+    if (typeof lottie === "undefined") return;
+    actorObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        const anim = entry.target._actorAnim;
+        if (!anim) return;
+        if (entry.isIntersecting) anim.play();
+        else anim.pause();
+      });
+    }, { threshold: 0.15 });
     document.querySelectorAll(".day-actor").forEach(el => {
-      const pack = ACTOR_FRAMES[el.dataset.mood] || ACTOR_FRAMES.idle;
-      const img = document.createElement("img");
-      img.alt = "";
-      img.width = 72;
-      img.height = 96;
-      let i = 0;
-      img.src = poseUrl(pack.frames[0]);
-      el.replaceChildren(img);
-      if (pack.frames.length < 2) return;
-      const tick = () => {
-        if (!el.isConnected) return;
-        i = (i + 1) % pack.frames.length;
-        img.src = poseUrl(pack.frames[i]);
-        setTimeout(tick, pack.ms);
-      };
-      setTimeout(tick, pack.ms);
+      const anim = lottie.loadAnimation({
+        container: el,
+        renderer: "svg",
+        loop: true,
+        autoplay: false,
+        path: ACTOR_LOTTIE[el.dataset.mood] || ACTOR_LOTTIE.idle
+      });
+      el._actorAnim = anim;
+      actorAnims.push(anim);
+      actorObserver.observe(el);
     });
   }
 
