@@ -66,7 +66,7 @@
     main {
       max-width:720px;
       margin:0 auto;
-      padding:22px 28px calc(120px + env(safe-area-inset-bottom, 0px));
+      padding:8px 28px calc(120px + env(safe-area-inset-bottom, 0px));
       transform-style:preserve-3d;
     }
     section { transform-style:preserve-3d; }
@@ -126,42 +126,52 @@
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .jaws {
-      position:fixed;
-      inset:0;
-      z-index:40;
-      pointer-events:none;
-      overflow:hidden;
+    .hippo-wrap {
+      max-width:720px;
+      margin:0 auto;
+      padding:16px 28px 0;
+      position:relative;
+      z-index:6;
     }
-    .jaws[hidden] { display:none; }
-    .jaw {
-      position:absolute;
-      left:50%;
-      width:170%;
-      height:56%;
-      background-repeat:no-repeat;
-      background-size:100% 200%;
-      transform:translateX(-50%);
-      will-change:transform;
+    .hippo {
+      display:block;
+      height:2.175em;
+      width:auto;
+      overflow:visible;
     }
-    .jaw-top {
-      top:0;
-      background-position:center top;
+    .hippo-breathe {
+      transform-box:fill-box;
+      transform-origin:45% 75%;
+      animation:hippo-breathe 2.7s ease-in-out infinite;
     }
-    .jaw-bottom {
-      bottom:0;
-      background-position:center bottom;
+    @keyframes hippo-breathe {
+      0%, 100% { transform:scale(1, 1); }
+      50% { transform:scale(1.05, 1.1); }
     }
     @media (max-width:520px) { body { font-size:14px; } h1 { font-size:22px; } }
   </style>
 </head>
 <body>
 <div class="crawl-stage">
-<main id="app"></main>
+<div class="hippo-wrap" aria-hidden="true">
+  <svg class="hippo" viewBox="0 0 100 58" fill="#000">
+    <g class="hippo-breathe">
+      <path d="M14 36c-7 1-10 7-8 12" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>
+      <ellipse cx="40" cy="36" rx="24" ry="17"/>
+      <ellipse cx="68" cy="22" rx="17" ry="14"/>
+      <ellipse cx="84" cy="25" rx="12" ry="8"/>
+      <ellipse cx="58" cy="11" rx="5" ry="6"/>
+      <circle cx="72" cy="19" r="2" fill="#fff"/>
+      <circle cx="90" cy="23" r="1.4" fill="#fff"/>
+      <ellipse cx="56" cy="34" rx="9" ry="4.5" transform="rotate(-18 56 34)"/>
+      <ellipse cx="64" cy="31" rx="4" ry="3"/>
+      <ellipse cx="36" cy="50" rx="12" ry="5"/>
+      <ellipse cx="48" cy="51" rx="6" ry="3.6"/>
+      <ellipse cx="58" cy="51.5" rx="7" ry="3.4"/>
+    </g>
+  </svg>
 </div>
-<div class="jaws" id="jaws" hidden aria-hidden="true">
-  <div class="jaw jaw-top"></div>
-  <div class="jaw jaw-bottom"></div>
+<main id="app"></main>
 </div>
 <div class="refresh-wrap">
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
@@ -378,20 +388,7 @@
   }
 
   const stage = document.querySelector(".crawl-stage");
-  const jaws = document.querySelector("#jaws");
-  const jawTop = jaws.querySelector(".jaw-top");
-  const jawBottom = jaws.querySelector(".jaw-bottom");
   let crawlRaf = 0;
-  function updateChew() {
-    if (jaws.hidden) return;
-    const max = stage.scrollHeight - stage.clientHeight;
-    const p = max > 0 ? stage.scrollTop / max : 0;
-    const chew = (Math.sin(p * Math.PI * 10) + 1) / 2;
-    const close = 0.2 + 0.45 * p + 0.35 * chew;
-    const open = (1 - close) * stage.clientHeight * 0.2;
-    jawTop.style.transform = `translateX(-50%) translateY(${-open}px)`;
-    jawBottom.style.transform = `translateX(-50%) translateY(${open}px)`;
-  }
   function updateCrawl() {
     const vh = stage.clientHeight;
     const fold = vh / 3;
@@ -413,7 +410,6 @@
       el.style.transformOrigin = "50% 100%";
       el.style.transform = `perspective(360px) rotateX(${angle.toFixed(2)}deg)`;
     }
-    updateChew();
   }
   function requestCrawl() {
     if (crawlRaf) return;
@@ -422,15 +418,6 @@
       updateCrawl();
     });
   }
-  const chewImg = new Image();
-  chewImg.onload = () => {
-    const url = `url("${chewImg.src}")`;
-    jawTop.style.backgroundImage = url;
-    jawBottom.style.backgroundImage = url;
-    jaws.hidden = false;
-    requestCrawl();
-  };
-  chewImg.src = `chew.jpg?v=${Date.now()}`;
   stage.addEventListener("scroll", requestCrawl, { passive: true });
   window.addEventListener("resize", requestCrawl);
 
