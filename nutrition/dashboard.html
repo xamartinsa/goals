@@ -50,7 +50,12 @@
     .empty { margin:8px 0 0; color:var(--muted); }
     .totals { margin:0 0 18px; }
     .totals div { margin:2px 0; }
-    .pct { font-weight:700; }
+    .pct {
+      font-weight:400;
+      font-size:.68em;
+      vertical-align:super;
+      line-height:0;
+    }
     .good { color:var(--good); }
     .great { color:var(--great); }
     .low { color:var(--low); }
@@ -324,15 +329,15 @@
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} ккал · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
+      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
-        <div>Калории: ${fmt(t.kcal)} ккал · ${pct(t.kcal, kcalTarget)}</div>
-        <div>Белок: ${fmt(t.p)} г · ${pct(t.p, targets.p, "floor")}</div>
-        <div>Жиры: ${fmt(t.f)} г · ${pct(t.f, targets.f)}</div>
-        <div>Углеводы: ${fmt(t.c)} г · ${pct(t.c, carbsTarget)}</div>
-        <div>Клетчатка: ${fmt(t.fiber)} г · ${pct(t.fiber, targets.fiber, "floor")}</div>
+        <div>Калории: ${fmt(t.kcal)} • ${pct(t.kcal, kcalTarget)}</div>
+        <div>Белок: ${fmt(t.p)} • ${pct(t.p, targets.p, "floor")}</div>
+        <div>Жиры: ${fmt(t.f)} • ${pct(t.f, targets.f)}</div>
+        <div>Углеводы: ${fmt(t.c)} • ${pct(t.c, carbsTarget)}</div>
+        <div>Клетчатка: ${fmt(t.fiber)} • ${pct(t.fiber, targets.fiber, "floor")}</div>
       </div>
       ${mealsHtml}
     </section>`;
