@@ -139,15 +139,7 @@
       width:auto;
       overflow:visible;
     }
-    .hippo-breathe {
-      transform-box:fill-box;
-      transform-origin:50% 40%;
-      animation:hippo-breathe 2.7s ease-in-out infinite;
-    }
-    @keyframes hippo-breathe {
-      0%, 100% { transform:scale(1, 1); }
-      50% { transform:scale(1.07, 1.1); }
-    }
+    .hippo-breathe { pointer-events:none; }
     @media (max-width:520px) { body { font-size:14px; } h1 { font-size:22px; } }
   </style>
 </head>
@@ -167,16 +159,14 @@
     <ellipse cx="38" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
     <ellipse cx="62" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
     <path d="M43 52 Q50 56 57 52" fill="none"/>
-    <g class="hippo-breathe">
-      <path d="M32 62
-        L30 96
-        Q30 110 50 112
-        Q70 110 70 96
-        L68 62
-        Q50 66 32 62 Z"/>
-      <ellipse cx="38" cy="86" rx="8" ry="5.5"/>
-      <ellipse cx="62" cy="86" rx="8" ry="5.5"/>
-    </g>
+    <path d="M32 62 L30 96 Q30 110 50 112 Q70 110 70 96 L68 62 Q50 66 32 62 Z">
+      <animate attributeName="d" dur="2.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" values="
+        M32 62 L30 96 Q30 110 50 112 Q70 110 70 96 L68 62 Q50 66 32 62 Z;
+        M32 62 L24 93 Q22 108 50 114 Q78 108 76 93 L68 62 Q50 70 32 62 Z;
+        M32 62 L30 96 Q30 110 50 112 Q70 110 70 96 L68 62 Q50 66 32 62 Z"/>
+    </path>
+    <ellipse cx="38" cy="86" rx="8" ry="5.5"/>
+    <ellipse cx="62" cy="86" rx="8" ry="5.5"/>
     <ellipse cx="34" cy="120" rx="13" ry="9"/>
     <ellipse cx="66" cy="120" rx="13" ry="9"/>
   </svg>
