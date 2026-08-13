@@ -66,7 +66,7 @@
     main {
       max-width:720px;
       margin:0 auto;
-      padding:8px 28px calc(120px + env(safe-area-inset-bottom, 0px));
+      padding:22px 28px calc(120px + env(safe-area-inset-bottom, 0px));
       transform-style:preserve-3d;
     }
     section { transform-style:preserve-3d; }
@@ -127,11 +127,11 @@
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
     .hippo-wrap {
-      max-width:720px;
-      margin:0 auto;
-      padding:16px 28px 0;
-      position:relative;
-      z-index:6;
+      position:fixed;
+      top:max(10px, env(safe-area-inset-top, 0px));
+      left:max(12px, env(safe-area-inset-left, 0px));
+      z-index:50;
+      pointer-events:none;
     }
     .hippo {
       display:block;
@@ -141,7 +141,7 @@
     }
     .hippo-breathe {
       transform-box:fill-box;
-      transform-origin:45% 75%;
+      transform-origin:40% 70%;
       animation:hippo-breathe 2.7s ease-in-out infinite;
     }
     @keyframes hippo-breathe {
@@ -152,25 +152,32 @@
   </style>
 </head>
 <body>
-<div class="crawl-stage">
 <div class="hippo-wrap" aria-hidden="true">
-  <svg class="hippo" viewBox="0 0 100 58" fill="#000">
+  <svg class="hippo" viewBox="0 0 108 72" fill="#000">
     <g class="hippo-breathe">
-      <path d="M14 36c-7 1-10 7-8 12" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round"/>
-      <ellipse cx="40" cy="36" rx="24" ry="17"/>
-      <ellipse cx="68" cy="22" rx="17" ry="14"/>
-      <ellipse cx="84" cy="25" rx="12" ry="8"/>
-      <ellipse cx="58" cy="11" rx="5" ry="6"/>
-      <circle cx="72" cy="19" r="2" fill="#fff"/>
-      <circle cx="90" cy="23" r="1.4" fill="#fff"/>
-      <ellipse cx="56" cy="34" rx="9" ry="4.5" transform="rotate(-18 56 34)"/>
-      <ellipse cx="64" cy="31" rx="4" ry="3"/>
-      <ellipse cx="36" cy="50" rx="12" ry="5"/>
-      <ellipse cx="48" cy="51" rx="6" ry="3.6"/>
-      <ellipse cx="58" cy="51.5" rx="7" ry="3.4"/>
+      <path d="M16 38c-6 2-8 8-6 14" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+      <path d="M24 10
+        L24 50
+        Q24 60 36 60
+        L58 60
+        Q70 54 68 38
+        Q66 22 52 14
+        Q40 8 24 10 Z"/>
+      <ellipse cx="62" cy="16" rx="15" ry="13"/>
+      <ellipse cx="78" cy="18" rx="12" ry="8"/>
+      <ellipse cx="52" cy="7" rx="5" ry="6"/>
+      <circle cx="66" cy="13" r="2" fill="#fff"/>
+      <circle cx="85" cy="16" r="1.4" fill="#fff"/>
+      <ellipse cx="52" cy="36" rx="10" ry="5.5" transform="rotate(-12 52 36)"/>
+      <ellipse cx="62" cy="33" rx="4.5" ry="3.5"/>
+      <ellipse cx="44" cy="62" rx="20" ry="9"/>
+      <ellipse cx="50" cy="64" rx="18" ry="8"/>
+      <ellipse cx="68" cy="64" rx="9" ry="7"/>
+      <ellipse cx="72" cy="65" rx="8" ry="6"/>
     </g>
   </svg>
 </div>
+<div class="crawl-stage">
 <main id="app"></main>
 </div>
 <div class="refresh-wrap">
