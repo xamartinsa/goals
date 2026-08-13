@@ -367,11 +367,11 @@
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
-        <div>Калории: ${fmt(t.kcal)} • ${pct(t.kcal, kcalTarget)}</div>
-        <div>Белок: ${fmt(t.p)} • ${pct(t.p, targets.p, "floor")}</div>
-        <div>Жиры: ${fmt(t.f)} • ${pct(t.f, targets.f)}</div>
-        <div>Углеводы: ${fmt(t.c)} • ${pct(t.c, carbsTarget)}</div>
-        <div>Клетчатка: ${fmt(t.fiber)} • ${pct(t.fiber, targets.fiber, "floor")}</div>
+        <div>Калории: ${fmt(t.kcal)} ${pct(t.kcal, kcalTarget)}</div>
+        <div>Белок: ${fmt(t.p)} ${pct(t.p, targets.p, "floor")}</div>
+        <div>Жиры: ${fmt(t.f)} ${pct(t.f, targets.f)}</div>
+        <div>Углеводы: ${fmt(t.c)} ${pct(t.c, carbsTarget)}</div>
+        <div>Клетчатка: ${fmt(t.fiber)} ${pct(t.fiber, targets.fiber, "floor")}</div>
       </div>
       ${mealsHtml}
     </section>`;
