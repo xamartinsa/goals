@@ -141,12 +141,12 @@
     }
     .hippo-breathe {
       transform-box:fill-box;
-      transform-origin:50% 80%;
+      transform-origin:50% 40%;
       animation:hippo-breathe 2.7s ease-in-out infinite;
     }
     @keyframes hippo-breathe {
       0%, 100% { transform:scale(1, 1); }
-      50% { transform:scale(1.04, 1.08); }
+      50% { transform:scale(1.07, 1.1); }
     }
     @media (max-width:520px) { body { font-size:14px; } h1 { font-size:22px; } }
   </style>
@@ -154,20 +154,20 @@
 <body>
 <div class="hippo-wrap" aria-hidden="true">
   <svg class="hippo" viewBox="0 0 100 132" fill="#fff" stroke="#000" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M20 92 Q4 96 8 74" fill="none"/>
+    <ellipse cx="9" cy="72" rx="5.5" ry="3.4"/>
+    <ellipse cx="30" cy="16" rx="6" ry="10"/>
+    <ellipse cx="70" cy="16" rx="6" ry="10"/>
+    <path d="M24 34
+      C24 12 76 12 76 34
+      C82 46 78 62 50 64
+      C22 62 18 46 24 34 Z"/>
+    <ellipse cx="38" cy="32" rx="5" ry="6.4"/>
+    <ellipse cx="62" cy="32" rx="5" ry="6.4"/>
+    <ellipse cx="38" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
+    <ellipse cx="62" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
+    <path d="M43 52 Q50 56 57 52" fill="none"/>
     <g class="hippo-breathe">
-      <path d="M20 92 Q4 96 8 74" fill="none"/>
-      <ellipse cx="9" cy="72" rx="5.5" ry="3.4"/>
-      <ellipse cx="30" cy="16" rx="6" ry="10"/>
-      <ellipse cx="70" cy="16" rx="6" ry="10"/>
-      <path d="M24 34
-        C24 12 76 12 76 34
-        C82 46 78 62 50 64
-        C22 62 18 46 24 34 Z"/>
-      <ellipse cx="38" cy="32" rx="5" ry="6.4"/>
-      <ellipse cx="62" cy="32" rx="5" ry="6.4"/>
-      <ellipse cx="38" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
-      <ellipse cx="62" cy="29.5" rx="1.5" ry="2.1" fill="#000" stroke="none"/>
-      <path d="M43 52 Q50 56 57 52" fill="none"/>
       <path d="M32 62
         L30 96
         Q30 110 50 112
@@ -176,9 +176,9 @@
         Q50 66 32 62 Z"/>
       <ellipse cx="38" cy="86" rx="8" ry="5.5"/>
       <ellipse cx="62" cy="86" rx="8" ry="5.5"/>
-      <ellipse cx="34" cy="120" rx="13" ry="9"/>
-      <ellipse cx="66" cy="120" rx="13" ry="9"/>
     </g>
+    <ellipse cx="34" cy="120" rx="13" ry="9"/>
+    <ellipse cx="66" cy="120" rx="13" ry="9"/>
   </svg>
 </div>
 <div class="crawl-stage">
