@@ -74,11 +74,10 @@
       font-variant:small-caps;
       color:var(--muted);
     }
-    .total-value {
-      font-size:16px;
-      line-height:1.45;
-      font-weight:400;
-      letter-spacing:-0.01em;
+    .macros {
+      font:inherit;
+      letter-spacing:inherit;
+      line-height:inherit;
     }
     .pct { font-weight:400; }
     .good { color:var(--good); }
@@ -357,15 +356,15 @@
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div>${fmt(x.kcal)} · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
+      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div class="macros">${fmt(x.kcal)} · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
-        <div class="total"><span class="total-label">Калории</span><span class="total-value">${fmtInt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
-        <div class="total"><span class="total-label">Белок</span><span class="total-value">${fmtInt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
-        <div class="total"><span class="total-label">Жиры</span><span class="total-value">${fmtInt(t.f)}${pct(t.f, targets.f)}</span></div>
-        <div class="total"><span class="total-label">Углеводы</span><span class="total-value">${fmtInt(t.c)}${pct(t.c, carbsTarget)}</span></div>
-        <div class="total"><span class="total-label">Клетчатка</span><span class="total-value">${fmtInt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
+        <div class="total"><span class="total-label">Калории</span><span class="macros">${fmtInt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
+        <div class="total"><span class="total-label">Белок</span><span class="macros">${fmtInt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
+        <div class="total"><span class="total-label">Жиры</span><span class="macros">${fmtInt(t.f)}${pct(t.f, targets.f)}</span></div>
+        <div class="total"><span class="total-label">Углеводы</span><span class="macros">${fmtInt(t.c)}${pct(t.c, carbsTarget)}</span></div>
+        <div class="total"><span class="total-label">Клетчатка</span><span class="macros">${fmtInt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
       </div>
       ${mealsHtml}
     </section>`;
