@@ -52,8 +52,33 @@
     }
     .meta { margin:0 0 22px; color:var(--muted); font-size:13px; }
     .empty { margin:8px 0 0; color:var(--muted); }
-    .totals { margin:0 0 22px; }
-    .totals div { margin:4px 0; }
+    .totals {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      margin:0 0 28px;
+    }
+    .total {
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:3px;
+    }
+    .total-label {
+      font-size:9px;
+      line-height:1.2;
+      font-weight:600;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      font-variant:small-caps;
+      color:var(--muted);
+    }
+    .total-value {
+      font-size:22px;
+      line-height:1.15;
+      font-weight:600;
+      letter-spacing:-0.02em;
+    }
     .pct { font-weight:400; }
     .good { color:var(--good); }
     .great { color:var(--great); }
@@ -334,11 +359,11 @@
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
-        <div>Калории: ${fmt(t.kcal)}${pct(t.kcal, kcalTarget)}</div>
-        <div>Белок: ${fmt(t.p)}${pct(t.p, targets.p, "floor")}</div>
-        <div>Жиры: ${fmt(t.f)}${pct(t.f, targets.f)}</div>
-        <div>Углеводы: ${fmt(t.c)}${pct(t.c, carbsTarget)}</div>
-        <div>Клетчатка: ${fmt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</div>
+        <div class="total"><span class="total-label">Калории</span><span class="total-value">${fmt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
+        <div class="total"><span class="total-label">Белок</span><span class="total-value">${fmt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
+        <div class="total"><span class="total-label">Жиры</span><span class="total-value">${fmt(t.f)}${pct(t.f, targets.f)}</span></div>
+        <div class="total"><span class="total-label">Углеводы</span><span class="total-value">${fmt(t.c)}${pct(t.c, carbsTarget)}</span></div>
+        <div class="total"><span class="total-label">Клетчатка</span><span class="total-value">${fmt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
       </div>
       ${mealsHtml}
     </section>`;
