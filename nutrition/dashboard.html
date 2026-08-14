@@ -54,30 +54,31 @@
     .empty { margin:8px 0 0; color:var(--muted); }
     .totals {
       display:flex;
-      flex-direction:column;
-      gap:18px;
+      flex-direction:row;
+      flex-wrap:wrap;
+      gap:14px 22px;
       margin:0 0 28px;
     }
     .total {
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap:3px;
+      gap:2px;
     }
     .total-label {
-      font-size:9px;
+      font-size:8px;
       line-height:1.2;
-      font-weight:600;
-      letter-spacing:0.14em;
+      font-weight:700;
+      letter-spacing:0;
       text-transform:uppercase;
       font-variant:small-caps;
       color:var(--muted);
     }
     .total-value {
-      font-size:22px;
-      line-height:1.15;
-      font-weight:600;
-      letter-spacing:-0.02em;
+      font-size:16px;
+      line-height:1.45;
+      font-weight:400;
+      letter-spacing:-0.01em;
     }
     .pct { font-weight:400; }
     .good { color:var(--good); }
