@@ -237,6 +237,7 @@
   };
   const trainingDays = new Set([0, 2, 5]); // вс, вт, пт
   const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".",",");
+  const fmtInt = n => String(Math.round(n));
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
   // mode "ceiling": ккал/жиры/углеводы — перебор = high
@@ -360,11 +361,11 @@
       return `<section>
       <h1>${titleDay}</h1>
       <div class="totals">
-        <div class="total"><span class="total-label">Калории</span><span class="total-value">${fmt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
-        <div class="total"><span class="total-label">Белок</span><span class="total-value">${fmt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
-        <div class="total"><span class="total-label">Жиры</span><span class="total-value">${fmt(t.f)}${pct(t.f, targets.f)}</span></div>
-        <div class="total"><span class="total-label">Углеводы</span><span class="total-value">${fmt(t.c)}${pct(t.c, carbsTarget)}</span></div>
-        <div class="total"><span class="total-label">Клетчатка</span><span class="total-value">${fmt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
+        <div class="total"><span class="total-label">Калории</span><span class="total-value">${fmtInt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
+        <div class="total"><span class="total-label">Белок</span><span class="total-value">${fmtInt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
+        <div class="total"><span class="total-label">Жиры</span><span class="total-value">${fmtInt(t.f)}${pct(t.f, targets.f)}</span></div>
+        <div class="total"><span class="total-label">Углеводы</span><span class="total-value">${fmtInt(t.c)}${pct(t.c, carbsTarget)}</span></div>
+        <div class="total"><span class="total-label">Клетчатка</span><span class="total-value">${fmtInt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
       </div>
       ${mealsHtml}
     </section>`;
