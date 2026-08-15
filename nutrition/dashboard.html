@@ -501,11 +501,8 @@
 
     let defs = "";
     let paths = "";
-    cols.forEach((raw, i) => {
-      if (raw.length < 1) return;
-      const first = raw[0];
-      const last = raw[raw.length - 1];
-      const pts = [{...first, y:0}, ...raw, {...last, y:h}];
+    cols.forEach((pts, i) => {
+      if (pts.length < 1) return;
       const y0 = pts[0].y;
       const y1 = pts[pts.length - 1].y;
       const span = Math.max(y1 - y0, 1);
