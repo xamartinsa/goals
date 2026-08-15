@@ -140,7 +140,7 @@
     .mark svg { display:block; }
     .mark-ok { color:#12c45a; }
     .mark.high { color:var(--high); }
-    .mark-signal { width:11px; height:11px; }
+    .mark-signal { width:12px; height:12px; }
     .mark-signal .tick {
       fill:none;
       stroke:#fff;
@@ -148,17 +148,14 @@
       stroke-linecap:round;
       stroke-linejoin:round;
     }
-    .mark-signal .ring { opacity:.1; }
-    .bars-1 .mark-signal .ring:nth-child(1) { opacity:.55; }
-    .bars-2 .mark-signal .ring:nth-child(1) { opacity:.85; }
-    .bars-2 .mark-signal .ring:nth-child(2) { opacity:.6; }
-    .bars-3 .mark-signal .ring:nth-child(1) { opacity:1; }
-    .bars-3 .mark-signal .ring:nth-child(2) { opacity:.8; }
-    .bars-3 .mark-signal .ring:nth-child(3) { opacity:.55; }
-    .bars-4 .mark-signal .ring:nth-child(1) { opacity:1; }
-    .bars-4 .mark-signal .ring:nth-child(2) { opacity:.9; }
-    .bars-4 .mark-signal .ring:nth-child(3) { opacity:.7; }
-    .bars-4 .mark-signal .ring:nth-child(4) { opacity:.5; }
+    .mark-signal .ring { opacity:0; }
+    .bars-1 .mark-signal .ring:nth-child(1) { opacity:1; }
+    .bars-2 .mark-signal .ring:nth-child(1),
+    .bars-2 .mark-signal .ring:nth-child(2) { opacity:1; }
+    .bars-3 .mark-signal .ring:nth-child(1),
+    .bars-3 .mark-signal .ring:nth-child(2),
+    .bars-3 .mark-signal .ring:nth-child(3) { opacity:1; }
+    .bars-4 .mark-signal .ring { opacity:1; }
     .meals {
       display:flex;
       flex-direction:column;
@@ -349,7 +346,7 @@
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
   // mode "ceiling": ккал/жиры/углеводы — перебор = high
-  const rings = `<circle class="ring" cx="8" cy="8" r="1.8" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/>`;
+  const rings = `<circle class="ring" cx="8" cy="8" r="1.15" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.75" fill="none" stroke="currentColor" stroke-width="1.15"/><circle class="ring" cx="8" cy="8" r="4.55" fill="none" stroke="currentColor" stroke-width="1.15"/><circle class="ring" cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.15"/>`;
   const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
   const checkSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}<path class="tick" d="M4.15 8.2 6.75 10.7 11.85 5.35"/></svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
