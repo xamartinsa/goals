@@ -475,12 +475,16 @@
 
     if (mode === "chart") {
       let paths = "";
-      app.querySelectorAll("section").forEach(sec => {
+      const days = [...app.querySelectorAll("section")].filter(sec => sec.querySelector(".day-totals"));
+      days.forEach((sec, index) => {
         const day = sec.querySelector(".day-totals");
-        if (!day) return;
         const secBox = sec.getBoundingClientRect();
-        const y1 = secBox.top - origin.top;
-        const barH = Math.max(secBox.height, 1);
+        const prevBox = index > 0 ? days[index - 1].getBoundingClientRect() : null;
+        const nextBox = index < days.length - 1 ? days[index + 1].getBoundingClientRect() : null;
+        const padTop = prevBox ? Math.max(0, secBox.top - prevBox.bottom) / 2 : 0;
+        const padBot = nextBox ? Math.max(0, nextBox.top - secBox.bottom) / 2 : 0;
+        const y1 = secBox.top - origin.top - padTop;
+        const barH = Math.max(secBox.height + padTop + padBot, 1);
         [...day.children].forEach((cell, i) => {
           if (i > 4) return;
           const box = cell.getBoundingClientRect();
@@ -492,7 +496,7 @@
           const bandRight = left + box.width - 2;
           const t = Math.min(Math.max(pct, 0), 200) / 200;
           const x = bandLeft + t * (bandRight - bandLeft);
-          paths += `<rect x="${x - 1.1}" y="${y1}" width="2.2" height="${barH}" rx="1.1" fill="${toneColor[tone] || toneColor.ok}"/>`;
+          paths += `<rect x="${x - 1.1}" y="${y1}" width="2.2" height="${barH}" fill="${toneColor[tone] || toneColor.ok}"/>`;
         });
       });
       vizSvg.innerHTML = paths;
