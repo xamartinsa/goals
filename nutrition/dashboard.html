@@ -122,7 +122,9 @@
     }
     .mark:empty { display:none; }
     .mark svg { display:block; }
-    .mark-check { width:13px; height:13px; }
+    .mark-badge { width:15px; height:15px; }
+    .mark-ok { color:#1f9d55; }
+    .mark-soft { color:#8aa88f; }
     .mark-signal { width:14px; height:12px; }
     .mark-signal rect { fill:currentColor; opacity:.18; }
     .bars-1 .mark-signal rect:nth-child(-n+1) { opacity:1; }
@@ -317,21 +319,23 @@
     }
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
-  const checkSvg = `<svg class="mark-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.4 6.4 11.8 13.2 4.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const checkOk = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="M4.2 8.2 6.8 10.7 11.8 5.4" fill="none" stroke="#fff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const checkSoft = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M4.4 8.2 6.8 10.5 11.6 5.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 12" aria-hidden="true"><rect x="0.5" y="8" width="2.6" height="4" rx="0.4"/><rect x="4.6" y="5.4" width="2.6" height="6.6" rx="0.4"/><rect x="8.7" y="2.7" width="2.6" height="9.3" rx="0.4"/><rect x="12.8" y="0" width="2.6" height="12" rx="0.4"/></svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
-      if (valuePct >= 95) return `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`;
+      if (valuePct >= 95) return `<span class="mark mark-ok" title="${valuePct}%">${checkOk}</span>`;
       if (opts.warnBelow) {
         const bars = valuePct < 50 ? 1 : 2;
         return `<span class="mark low bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
       }
+      if (valuePct > 0) return `<span class="mark mark-soft" title="${valuePct}%">${checkSoft}</span>`;
       return "";
     }
     const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
     if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
-    if (valuePct >= 70) return `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`;
+    if (valuePct >= 70) return `<span class="mark mark-ok" title="${valuePct}%">${checkOk}</span>`;
     return "";
   };
   const dayExtra = (value, target, mode = "ceiling", opts = {}) => `${mark(value, target, mode, opts)}${pct(value, target, mode)}`;
