@@ -98,6 +98,7 @@
     .mark:empty { display:none; }
     .mark svg { display:block; }
     .mark-check { width:13px; height:13px; }
+    .mark-warn { width:13px; height:13px; }
     .mark-signal { width:14px; height:12px; }
     .mark-signal rect { fill:currentColor; opacity:.18; }
     .bars-2 .mark-signal rect:nth-child(-n+2) { opacity:1; }
@@ -292,20 +293,23 @@
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
   const checkSvg = `<svg class="mark-check" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.4 6.4 11.8 13.2 4.4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const warnSvg = `<svg class="mark-warn" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.4 14.7 14H1.3L8 2.4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M8 6.6v3.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="8" cy="12.1" r="0.85" fill="currentColor"/></svg>`;
   const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 12" aria-hidden="true"><rect x="0.5" y="8" width="2.6" height="4" rx="0.4"/><rect x="4.6" y="5.4" width="2.6" height="6.6" rx="0.4"/><rect x="8.7" y="2.7" width="2.6" height="9.3" rx="0.4"/><rect x="12.8" y="0" width="2.6" height="12" rx="0.4"/></svg>`;
-  const mark = (value, target, mode = "ceiling") => {
+  const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
-      return valuePct >= 95
-        ? `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`
-        : "";
+      if (valuePct >= 95) return `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`;
+      if (opts.warnBelow && valuePct < opts.warnBelow) {
+        return `<span class="mark low" title="${valuePct}%">${warnSvg}</span>`;
+      }
+      return "";
     }
     const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
     return bars
       ? `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`
       : "";
   };
-  const dayExtra = (value, target, mode = "ceiling") => `${mark(value, target, mode)}${pct(value, target, mode)}`;
+  const dayExtra = (value, target, mode = "ceiling", opts = {}) => `${mark(value, target, mode, opts)}${pct(value, target, mode)}`;
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
@@ -424,7 +428,7 @@
       <h1>${titleDay}</h1>
       ${macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
-        {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor")}
+        {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
       )}
       ${mealsHtml}
     </section>`;
