@@ -212,15 +212,15 @@
       width:44px;
       height:44px;
       padding:0;
-      border:1px solid rgba(255,255,255,.9);
+      border:0.5px solid rgba(255,255,255,.95);
       border-radius:50%;
-      background:rgba(236,236,236,.42);
+      background:rgba(255,255,255,.48);
       color:#000;
       display:grid;
       place-items:center;
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-      box-shadow:0 1px 8px rgba(0,0,0,.05);
+      backdrop-filter:blur(20px) brightness(1.28) saturate(1.15);
+      -webkit-backdrop-filter:blur(20px) brightness(1.28) saturate(1.15);
+      box-shadow:0 3px 10px rgba(0,0,0,.055), 0 1px 2px rgba(0,0,0,.04);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
@@ -228,7 +228,7 @@
     .refresh svg { width:22px; height:22px; display:block; }
     body[data-viz="rings"] .viz-icon-rings { display:none; }
     body[data-viz="graph"] .viz-icon-graph { display:none; }
-    .refresh:active { background:rgba(220,220,220,.55); }
+    .refresh:active { background:rgba(255,255,255,.62); }
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
@@ -265,35 +265,9 @@
     </svg>
   </button>
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
-    <!-- Mosaic refresh: black tesserae, Pompeii-like -->
-    <svg viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges">
-      <g fill="#111">
-        <rect x="8" y="3" width="2.6" height="2.6"/>
-        <rect x="10.8" y="3" width="2.6" height="2.6"/>
-        <rect x="13.6" y="3" width="2.6" height="2.6"/>
-        <rect x="16.4" y="3" width="2.6" height="2.6"/>
-        <rect x="16.4" y="5.8" width="2.6" height="2.6"/>
-        <rect x="19.2" y="5.8" width="2.6" height="2.6"/>
-        <rect x="19.2" y="8.6" width="2.6" height="2.6"/>
-        <rect x="19.2" y="11.4" width="2.6" height="2.6"/>
-        <rect x="19.2" y="14.2" width="2.6" height="2.6"/>
-        <rect x="16.4" y="17" width="2.6" height="2.6"/>
-        <rect x="13.6" y="19.8" width="2.6" height="2.6"/>
-        <rect x="10.8" y="19.8" width="2.6" height="2.6"/>
-        <rect x="8" y="19.8" width="2.6" height="2.6"/>
-        <rect x="5.2" y="19.8" width="2.6" height="2.6"/>
-        <rect x="2.4" y="17" width="2.6" height="2.6"/>
-        <rect x="2.4" y="14.2" width="2.6" height="2.6"/>
-        <rect x="2.4" y="11.4" width="2.6" height="2.6"/>
-        <rect x="2.4" y="8.6" width="2.6" height="2.6"/>
-        <rect x="5.2" y="5.8" width="2.6" height="2.6"/>
-        <!-- arrow head -->
-        <rect x="13.6" y="0.2" width="2.6" height="2.6"/>
-        <rect x="16.4" y="0.2" width="2.6" height="2.6"/>
-        <rect x="19.2" y="0.2" width="2.6" height="2.6"/>
-        <rect x="19.2" y="3" width="2.6" height="2.6"/>
-        <rect x="16.4" y="5.8" width="2.6" height="2.6"/>
-      </g>
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19.6 12a7.6 7.6 0 1 1-2.15-5.35"/>
+      <path d="M19.6 4.2v4.15h-4.15"/>
     </svg>
   </button>
 </div>
