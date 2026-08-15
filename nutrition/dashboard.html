@@ -470,7 +470,7 @@
         cols[i].push({
           x: shiftX ? mid + t * (bandRight - mid) : (mid + bandRight) / 2,
           y: box.top - origin.top + box.height / 2,
-          r: 2.1 + pct * 0.022 + over * 0.035,
+          r: 1.4 + pct * 0.014 + over * 0.022,
           color: toneColor[tone] || toneColor.ok,
           pct
         });
@@ -512,7 +512,7 @@
       if (mode === "ribbon") {
         paths += `<path d="${ribbonPath(pts)}" fill="url(#flow${i})" fill-opacity=".82"/>`;
       } else {
-        paths += `<path d="${catmull(pts)}" fill="none" stroke="url(#flow${i})" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+        paths += `<path d="${catmull(pts)}" fill="none" stroke="url(#flow${i})" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`;
       }
     });
     vizSvg.innerHTML = `<defs>${defs}</defs>${paths}`;
