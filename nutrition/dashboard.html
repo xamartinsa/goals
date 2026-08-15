@@ -162,6 +162,17 @@
     }
     .meal .food { font-size:12px; font-weight:400; color:var(--ink); }
     .meal .totals { margin:4px 0 0; }
+    .meal .macros { font-size:12px; }
+    .share {
+      font-size:8px;
+      line-height:1;
+      font-weight:400;
+      color:var(--label);
+      margin-left:0.12em;
+      align-self:flex-start;
+      position:relative;
+      top:0.05em;
+    }
     section .total-label { display:none; }
     .meal .total-label { display:none; }
     .good { color:var(--good); }
@@ -461,6 +472,10 @@
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
+      const share = (part, whole) => {
+        if (!whole || !part) return "";
+        return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
+      };
       const macrosRow = (values, extras = {}) => `<div class="totals">${[
         ["Калории", values.kcal, extras.kcal],
         ["Белок", values.p, extras.p],
@@ -468,7 +483,10 @@
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([, value, extra]) => `<div class="total"><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
-      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
+      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow(
+        {kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)},
+        {kcal:share(x.kcal,t.kcal),p:share(x.p,t.p),f:share(x.f,t.f),c:share(x.c,t.c),fiber:share(x.fiber,t.fiber)}
+      )}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
         {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
