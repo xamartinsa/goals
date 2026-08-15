@@ -12,7 +12,7 @@
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Barlow+Extra+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
@@ -30,7 +30,7 @@
       --low:#a16d00;
       --high:#b3261e;
       --font:"IBM Plex Sans", system-ui, sans-serif;
-      --font-cond:"IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
+      --font-cond:"Barlow Extra Condensed", "IBM Plex Sans Condensed", sans-serif;
     }
     * { box-sizing:border-box; }
     html, body { min-height:100%; }
@@ -85,9 +85,10 @@
       font-family:var(--font-cond);
       font-size:14px;
       line-height:1.45;
-      font-weight:400;
+      font-weight:500;
       letter-spacing:0;
     }
+    .pct { margin-left:0.12em; }
     .meal .totals { margin:6px 0 0; }
     .good { color:var(--good); }
     .great { color:var(--great); }
@@ -257,7 +258,7 @@
     } else {
       tone = valuePct < 70 ? "low" : valuePct > 110 ? "high" : "good";
     }
-    return `<span class="pct ${tone}"> ${valuePct}%</span>`;
+    return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
