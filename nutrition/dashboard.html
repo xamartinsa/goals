@@ -361,6 +361,8 @@
     const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
     if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct >= 70) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${signalSvg}</span>`;
+    if (valuePct >= 50) return `<span class="mark low bars-2" title="${valuePct}%">${signalSvg}</span>`;
+    if (valuePct > 0) return `<span class="mark high bars-2" title="${valuePct}%">${signalSvg}</span>`;
     return "";
   };
   const dayExtra = (value, target, mode = "ceiling", opts = {}) => mark(value, target, mode, opts);
