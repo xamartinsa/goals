@@ -481,17 +481,9 @@
     app.querySelectorAll("section").forEach(sec => {
       const details = sec.querySelector("details.day");
       const open = !details || details.open;
-      if (open) {
-        const meals = sec.querySelectorAll(".meal-totals");
-        if (meals.length) meals.forEach(addRow);
-        else {
-          const day = sec.querySelector(".day-totals");
-          if (day) addRow(day);
-        }
-      } else {
-        const day = sec.querySelector(".day-totals");
-        if (day) addRow(day);
-      }
+      const day = sec.querySelector(".day-totals");
+      if (day) addRow(day);
+      if (open) sec.querySelectorAll(".meal-totals").forEach(addRow);
     });
 
     if (cols.every(c => !c.length)) {
