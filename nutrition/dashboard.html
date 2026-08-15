@@ -64,10 +64,10 @@
       padding:calc(var(--head-h) + env(safe-area-inset-top, 0px) + 10px) var(--gutter) calc(120px + env(safe-area-inset-bottom, 0px));
     }
     h1 {
-      font-size:18px;
-      font-weight:700;
+      font-size:13px;
+      font-weight:400;
       margin:0;
-      letter-spacing:-0.02em;
+      letter-spacing:0;
     }
     .day-head {
       display:flex;
@@ -231,7 +231,7 @@
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    @media (max-width:520px) { body { font-size:14px; } h1 { font-size:16px; } }
+    @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
 <body data-view="icons">
