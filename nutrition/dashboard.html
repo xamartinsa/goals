@@ -32,6 +32,7 @@
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-cond:"Barlow Extra Condensed", "IBM Plex Sans Condensed", sans-serif;
       --gutter:22px;
+      --head-h:36px;
     }
     * { box-sizing:border-box; }
     html, body { min-height:100%; }
@@ -42,10 +43,25 @@
       font:16px/1.45 var(--font);
       letter-spacing:-0.01em;
     }
+    .kbju-head {
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:30;
+      background:#fff;
+      padding-top:env(safe-area-inset-top, 0px);
+    }
+    .kbju-head-inner {
+      max-width:720px;
+      margin:0 auto;
+      padding:14px var(--gutter) 8px;
+    }
+    .kbju-head .totals { margin:0; }
     main {
       max-width:720px;
       margin:0 auto;
-      padding:16px var(--gutter) calc(120px + env(safe-area-inset-bottom, 0px));
+      padding:calc(var(--head-h) + env(safe-area-inset-top, 0px) + 10px) var(--gutter) calc(120px + env(safe-area-inset-bottom, 0px));
     }
     h1 {
       font-size:18px;
@@ -146,10 +162,10 @@
     body[data-view="icons"] .pct { display:none; }
     body[data-view="pct"] .mark { display:none; }
     .view-toggle {
-      position:fixed;
-      top:max(12px, env(safe-area-inset-top, 0px));
+      position:absolute;
+      top:calc(env(safe-area-inset-top, 0px) + 8px);
       right:max(16px, env(safe-area-inset-right, 0px));
-      z-index:1000;
+      z-index:31;
       appearance:none;
       border:0;
       background:none;
@@ -177,6 +193,7 @@
     }
     .meal .food { font-size:13px; font-weight:400; }
     .meal .totals { margin:4px 0 0; }
+    section .total-label { display:none; }
     .meal .total-label { display:none; }
     .meal .macros { font-size:12px; }
     .good { color:var(--good); }
@@ -218,7 +235,18 @@
   </style>
 </head>
 <body data-view="icons">
-<button type="button" class="view-toggle" id="viewToggle" aria-label="Показать проценты">%</button>
+<header class="kbju-head">
+  <div class="kbju-head-inner">
+    <div class="totals">
+      <div class="total"><span class="total-label">Калории</span></div>
+      <div class="total"><span class="total-label">Белок</span></div>
+      <div class="total"><span class="total-label">Жиры</span></div>
+      <div class="total"><span class="total-label">Углеводы</span></div>
+      <div class="total"><span class="total-label">Клетчатка</span></div>
+    </div>
+  </div>
+  <button type="button" class="view-toggle" id="viewToggle" aria-label="Показать проценты">%</button>
+</header>
 <main id="app"></main>
 <div class="refresh-wrap">
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
@@ -484,7 +512,7 @@
         ["Жиры", values.f, extras.f],
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
-      ].map(([label, value, extra]) => `<div class="total"><span class="total-label">${label}</span><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
+      ].map(([, value, extra]) => `<div class="total"><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
       const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
