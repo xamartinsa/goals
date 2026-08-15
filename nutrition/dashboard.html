@@ -28,7 +28,7 @@
       --good:#28734a;
       --great:#14532d;
       --low:#a16d00;
-      --high:#b3261e;
+      --high:#FF3B30;
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-cond:"Barlow Extra Condensed", "IBM Plex Sans Condensed", sans-serif;
       --gutter:22px;
@@ -102,7 +102,7 @@
       flex-wrap:nowrap;
       justify-content:space-between;
       align-items:flex-start;
-      gap:8px;
+      gap:16px;
       width:100%;
       margin:0 0 28px;
     }
@@ -125,7 +125,7 @@
     }
     .macros {
       font-family:var(--font-cond);
-      font-size:14px;
+      font-size:17px;
       line-height:1.45;
       font-weight:500;
       letter-spacing:0;
@@ -133,12 +133,13 @@
     .mark {
       display:inline-flex;
       align-items:center;
-      margin-left:0.16em;
-      vertical-align:-0.36em;
+      margin-left:0.28em;
+      vertical-align:-0.28em;
     }
     .mark:empty { display:none; }
     .mark svg { display:block; }
     .mark-ok { color:#12c45a; }
+    .mark.high { color:var(--high); }
     .mark-signal { width:11px; height:11px; }
     .mark-signal .tick {
       fill:none;
