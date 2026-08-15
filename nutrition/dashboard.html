@@ -323,8 +323,9 @@
     const valuePct = percent(value, target);
     if (mode === "floor") {
       if (valuePct >= 95) return `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`;
-      if (opts.warnBelow && valuePct < opts.warnBelow) {
-        return `<span class="mark low bars-1" title="${valuePct}%">${signalSvg}</span>`;
+      if (opts.warnBelow) {
+        const bars = valuePct < 50 ? 1 : 2;
+        return `<span class="mark low bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
       }
       return "";
     }
