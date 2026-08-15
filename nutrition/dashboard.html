@@ -174,7 +174,7 @@
       color:var(--label);
       opacity:.45;
     }
-    .meal .food { font-size:13px; font-weight:600; }
+    .meal .food { font-size:13px; font-weight:400; }
     .meal .totals { margin:4px 0 0; }
     .meal .total-label { display:none; }
     .meal .macros { font-size:12px; }
@@ -182,7 +182,7 @@
     .great { color:var(--great); }
     .low { color:var(--low); }
     .high { color:var(--high); }
-    .food { font-weight:600; }
+    .food { font-weight:400; }
     section { margin:0 0 22px; }
     .refresh-wrap {
       position:fixed;
@@ -408,6 +408,9 @@
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+  const prettyFoods = s => String(s)
+    .replace(/кофе фильтр/gi, "фильтр-кофе")
+    .replace(/(^|;\s*)(\S)/g, (_, p, c) => p + c.toLocaleUpperCase("ru"));
 
   function moscowToday() {
     return new Intl.DateTimeFormat("en-CA", {
@@ -481,7 +484,7 @@
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([label, value, extra]) => `<div class="total"><span class="total-label">${label}</span><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
-      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
+      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
         {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
