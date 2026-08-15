@@ -147,13 +147,27 @@
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
     }
-    .meal .totals { margin:6px 0 0; }
+    .meals { display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+    .meal {
+      padding:10px 12px;
+      border:0;
+      border-radius:12px;
+      background:#f2f2f2;
+    }
+    .meal-time {
+      font-size:11px;
+      line-height:1.3;
+      color:var(--label);
+      opacity:.45;
+    }
+    .meal .food { font-size:13px; font-weight:600; }
+    .meal .totals { margin:4px 0 0; }
+    .meal .total-label { display:none; }
+    .meal .macros { font-size:12px; }
     .good { color:var(--good); }
     .great { color:var(--great); }
     .low { color:var(--low); }
     .high { color:var(--high); }
-    .meal { padding:14px 0; border-top:1px solid var(--line); }
-    .meal:first-of-type { border-top:1px solid var(--line); }
     .food { font-weight:600; }
     section { margin:0 0 22px; }
     .refresh-wrap {
@@ -452,7 +466,7 @@
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([label, value, extra]) => `<div class="total"><span class="total-label">${label}</span><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
-      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("");
+      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
         {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
@@ -472,7 +486,7 @@
           <div class="day-head"><h1>${titleDay}</h1>${chevron}</div>
           ${totalsHtml}
         </summary>
-        <div class="meals">${mealsHtml}</div>
+        ${mealsHtml}
       </details>
     </section>`;
     }).join("");
