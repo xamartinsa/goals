@@ -202,7 +202,8 @@
     body[data-viz="rings"] .viz-flow { display:none; }
     body[data-viz="graph"] .mark,
     body[data-viz="ribbon"] .mark,
-    body[data-viz="bars"] .mark { display:none; }
+    body[data-viz="bars"] .mark,
+    body[data-viz="chart"] .mark { display:none; }
     .refresh-wrap {
       position:fixed;
       bottom:max(16px, env(safe-area-inset-bottom, 0px));
@@ -231,11 +232,16 @@
       touch-action:manipulation;
     }
     .refresh svg { width:22px; height:22px; display:block; }
-    .viz-icon-graph, .viz-icon-ribbon, .viz-icon-rings, .viz-icon-bars { display:none; }
-    body[data-viz="rings"] .viz-icon-graph { display:block; }
-    body[data-viz="graph"] .viz-icon-bars { display:block; }
-    body[data-viz="bars"] .viz-icon-ribbon { display:block; }
-    body[data-viz="ribbon"] .viz-icon-rings { display:block; }
+    .refresh svg.viz-icon-graph,
+    .refresh svg.viz-icon-ribbon,
+    .refresh svg.viz-icon-rings,
+    .refresh svg.viz-icon-bars,
+    .refresh svg.viz-icon-chart { display:none; }
+    body[data-viz="rings"] .refresh svg.viz-icon-graph { display:block; }
+    body[data-viz="graph"] .refresh svg.viz-icon-bars { display:block; }
+    body[data-viz="bars"] .refresh svg.viz-icon-chart { display:block; }
+    body[data-viz="chart"] .refresh svg.viz-icon-ribbon { display:block; }
+    body[data-viz="ribbon"] .refresh svg.viz-icon-rings { display:block; }
     .refresh:active { background:rgba(255,255,255,.62); }
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
@@ -270,6 +276,11 @@
       <rect x="5" y="10" width="3" height="10" rx="1"/>
       <rect x="10.5" y="5" width="3" height="15" rx="1"/>
       <rect x="16" y="8" width="3" height="12" rx="1"/>
+    </svg>
+    <svg class="viz-icon-chart" viewBox="0 0 24 24" aria-hidden="true" fill="#111">
+      <rect x="4.5" y="13" width="3.2" height="8" rx="1"/>
+      <rect x="10.4" y="4" width="3.2" height="17" rx="1"/>
+      <rect x="16.3" y="8.5" width="3.2" height="12.5" rx="1"/>
     </svg>
     <svg class="viz-icon-ribbon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#111" stroke-linecap="round">
       <path d="M12 3c-2.4 4.2 2.6 6.8-1.1 11.4C8.4 17.6 13.2 19.4 12 22" stroke-width="4.2"/>
@@ -517,6 +528,11 @@
           const barH = 5 + Math.min(p.pct, 200) / 200 * 18;
           paths += `<rect x="${p.x - 1.05}" y="${p.y - barH / 2}" width="2.1" height="${barH}" rx="1" fill="${p.color}"/>`;
         });
+      } else if (mode === "chart") {
+        pts.forEach(p => {
+          const barH = 10 + Math.min(p.pct, 200) / 200 * 38;
+          paths += `<rect x="${p.x - 1.25}" y="${p.y}" width="2.5" height="${barH}" rx="1.2" fill="${p.color}"/>`;
+        });
       } else {
         paths += `<path d="${catmull(pts)}" fill="none" stroke="url(#flow${i})" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>`;
       }
@@ -741,8 +757,8 @@
     });
   }
 
-  const vizCycle = {rings:"graph", graph:"bars", bars:"ribbon", ribbon:"rings"};
-  const vizLabel = {rings:"График", graph:"Столбики", bars:"Толщина", ribbon:"Кружки"};
+  const vizCycle = {rings:"graph", graph:"bars", bars:"chart", chart:"ribbon", ribbon:"rings"};
+  const vizLabel = {rings:"График", graph:"Столбики", bars:"Диаграмма", chart:"Толщина", ribbon:"Кружки"};
   const applyViz = mode => {
     document.body.dataset.viz = mode;
     try { localStorage.setItem("dashboard-viz", mode); } catch (e) {}
@@ -753,7 +769,7 @@
   let savedViz = "rings";
   try {
     const stored = localStorage.getItem("dashboard-viz");
-    if (stored === "graph" || stored === "rings" || stored === "ribbon" || stored === "bars") savedViz = stored;
+    if (["graph","rings","ribbon","bars","chart"].includes(stored)) savedViz = stored;
   } catch (e) {}
   applyViz(savedViz);
   vizToggle.addEventListener("click", () => {
