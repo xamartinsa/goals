@@ -123,14 +123,13 @@
       font-variant:small-caps;
       color:var(--label);
     }
-    .macros, .pct {
+    .macros {
       font-family:var(--font-cond);
       font-size:14px;
       line-height:1.45;
       font-weight:500;
       letter-spacing:0;
     }
-    .pct { margin-left:0.12em; }
     .mark {
       display:inline-flex;
       align-items:center;
@@ -140,7 +139,7 @@
     .mark:empty { display:none; }
     .mark svg { display:block; }
     .mark-ok { color:#12c45a; }
-    .mark-signal { width:13px; height:13px; }
+    .mark-signal { width:11px; height:11px; }
     .mark-signal .tick {
       fill:none;
       stroke:#fff;
@@ -159,22 +158,6 @@
     .bars-4 .mark-signal .ring:nth-child(2) { opacity:.9; }
     .bars-4 .mark-signal .ring:nth-child(3) { opacity:.7; }
     .bars-4 .mark-signal .ring:nth-child(4) { opacity:.5; }
-    body[data-view="icons"] .pct { display:none; }
-    body[data-view="pct"] .mark { display:none; }
-    .view-toggle {
-      position:absolute;
-      top:calc(env(safe-area-inset-top, 0px) + 8px);
-      right:max(16px, env(safe-area-inset-right, 0px));
-      z-index:31;
-      appearance:none;
-      border:0;
-      background:none;
-      padding:8px 2px;
-      font:12px/1 var(--font-cond);
-      color:var(--label);
-      cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-    }
     .meals {
       display:flex;
       flex-direction:column;
@@ -234,7 +217,7 @@
     @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
-<body data-view="icons">
+<body>
 <header class="kbju-head">
   <div class="kbju-head-inner">
     <div class="totals">
@@ -245,7 +228,6 @@
       <div class="total"><span class="total-label">Клетчатка</span></div>
     </div>
   </div>
-  <button type="button" class="view-toggle" id="viewToggle" aria-label="Показать проценты">%</button>
 </header>
 <main id="app"></main>
 <div class="refresh-wrap">
@@ -366,16 +348,6 @@
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
   // mode "ceiling": ккал/жиры/углеводы — перебор = high
-  const pct = (value, target, mode = "ceiling") => {
-    const valuePct = percent(value, target);
-    let tone;
-    if (mode === "floor") {
-      tone = valuePct < 70 ? "low" : valuePct >= 100 ? "great" : "good";
-    } else {
-      tone = valuePct < 70 ? "low" : valuePct > 110 ? "high" : "good";
-    }
-    return `<span class="pct ${tone}">${valuePct}%</span>`;
-  };
   const rings = `<circle class="ring" cx="8" cy="8" r="1.8" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/>`;
   const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
   const checkSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}<path class="tick" d="M4.15 8.2 6.75 10.7 11.85 5.35"/></svg>`;
@@ -396,7 +368,7 @@
     if (valuePct >= 70) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${checkSvg}</span>`;
     return "";
   };
-  const dayExtra = (value, target, mode = "ceiling", opts = {}) => `${mark(value, target, mode, opts)}${pct(value, target, mode)}`;
+  const dayExtra = (value, target, mode = "ceiling", opts = {}) => mark(value, target, mode, opts);
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
@@ -586,23 +558,6 @@
     });
   }
 
-  const viewToggle = document.querySelector("#viewToggle");
-  const applyView = view => {
-    document.body.dataset.view = view;
-    try { localStorage.setItem("dashboard-view", view); } catch (e) {}
-    const showPct = view === "pct";
-    viewToggle.textContent = showPct ? "✓" : "%";
-    viewToggle.setAttribute("aria-label", showPct ? "Показать иконки" : "Показать проценты");
-  };
-  let savedView = "icons";
-  try {
-    const stored = localStorage.getItem("dashboard-view");
-    if (stored === "pct" || stored === "icons") savedView = stored;
-  } catch (e) {}
-  applyView(savedView);
-  viewToggle.addEventListener("click", () => {
-    applyView(document.body.dataset.view === "icons" ? "pct" : "icons");
-  });
   refreshBtn.addEventListener("click", () => {
     refreshBtn.disabled = true;
     refreshBtn.classList.add("is-loading");
