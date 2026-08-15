@@ -156,7 +156,11 @@
       margin:10px calc(-1 * var(--gutter)) 0;
       padding:14px var(--gutter);
       border-radius:0;
-      background:#f7f7f7;
+      position:relative;
+      z-index:3;
+      background:rgba(247,247,247,.28);
+      backdrop-filter:blur(14px) brightness(1.22) saturate(1.05);
+      -webkit-backdrop-filter:blur(14px) brightness(1.22) saturate(1.05);
     }
     .meal { padding:0; border:0; background:none; }
     .meal-time {
@@ -185,7 +189,7 @@
     .low { color:var(--low); }
     .high { color:var(--high); }
     .food { font-weight:400; }
-    section { margin:0 0 26px; position:relative; z-index:0; }
+    section { margin:0 0 26px; position:relative; }
     .board { position:relative; max-width:720px; margin:0 auto; }
     .viz-flow {
       position:absolute;
@@ -194,7 +198,7 @@
       width:100%;
       height:100%;
       pointer-events:none;
-      z-index:2;
+      z-index:1;
       overflow:visible;
     }
     body[data-viz="rings"] .viz-flow { display:none; }
