@@ -379,8 +379,9 @@
       if (valuePct > 0) return `<span class="mark high bars-2" title="${valuePct}%">${signalSvg}</span>`;
       return "";
     }
-    const bars = valuePct > 170 ? 5 : valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
+    const bars = valuePct > 170 ? 5 : valuePct > 150 ? 4 : valuePct > 130 ? 3 : 0;
     if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
+    if (valuePct > 110) return `<span class="mark low bars-2" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct >= 70) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct >= 50) return `<span class="mark low bars-2" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct > 0) return `<span class="mark high bars-2" title="${valuePct}%">${signalSvg}</span>`;
@@ -395,7 +396,8 @@
       if (valuePct > 0) return {pct:valuePct, tone:"high"};
       return {pct:0, tone:""};
     }
-    if (valuePct > 110) return {pct:valuePct, tone:"high"};
+    if (valuePct > 130) return {pct:valuePct, tone:"high"};
+    if (valuePct > 110) return {pct:valuePct, tone:"low"};
     if (valuePct >= 70) return {pct:valuePct, tone:"ok"};
     if (valuePct >= 50) return {pct:valuePct, tone:"low"};
     if (valuePct > 0) return {pct:valuePct, tone:"high"};
