@@ -21,6 +21,7 @@
     :root {
       --ink:#000;
       --muted:#555;
+      --label:#9a9a9a;
       --line:#e2e2e2;
       --bg:#fff;
       --card:#fff;
@@ -56,12 +57,17 @@
     .totals {
       display:flex;
       flex-direction:row;
-      flex-wrap:wrap;
-      gap:14px 22px;
+      flex-wrap:nowrap;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      width:100%;
       margin:0 0 28px;
     }
     .total {
       display:flex;
+      flex:1 1 0;
+      min-width:0;
       flex-direction:column;
       align-items:flex-start;
       gap:0;
@@ -73,7 +79,7 @@
       letter-spacing:0;
       text-transform:uppercase;
       font-variant:small-caps;
-      color:var(--muted);
+      color:var(--label);
     }
     .macros, .pct {
       font-family:var(--font-cond);
