@@ -12,7 +12,7 @@
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
@@ -30,7 +30,7 @@
       --low:#a16d00;
       --high:#FF3B30;
       --font:"IBM Plex Sans", system-ui, sans-serif;
-      --font-num:"Fragment Mono", ui-monospace, monospace;
+      --font-num:"IBM Plex Sans", system-ui, sans-serif;
       --gutter:22px;
       --head-h:36px;
     }
@@ -123,7 +123,7 @@
       line-height:1.2;
       font-weight:400;
       letter-spacing:0;
-      font-feature-settings:"zero" 0, "liga" 0, "calt" 0;
+      font-feature-settings:"tnum" 1, "lnum" 1, "zero" 0;
       font-variant-numeric:tabular-nums lining-nums;
     }
     .mark {
@@ -484,7 +484,7 @@
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([, value, extra]) => `<div class="total"><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
       const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow(
-        {kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)},
+        {kcal:fmtInt(x.kcal),p:fmtInt(x.p),f:fmtInt(x.f),c:fmtInt(x.c),fiber:fmtInt(x.fiber)},
         {kcal:share(x.kcal,t.kcal),p:share(x.p,t.p),f:share(x.f,t.f),c:share(x.c,t.c),fiber:share(x.fiber,t.fiber)}
       )}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
