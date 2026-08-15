@@ -473,6 +473,32 @@
     vizSvg.style.width = `${w}px`;
     vizSvg.style.height = `${h}px`;
 
+    if (mode === "chart") {
+      let paths = "";
+      app.querySelectorAll("section").forEach(sec => {
+        const day = sec.querySelector(".day-totals");
+        if (!day) return;
+        const secBox = sec.getBoundingClientRect();
+        const y1 = secBox.top - origin.top;
+        const barH = Math.max(secBox.height, 1);
+        [...day.children].forEach((cell, i) => {
+          if (i > 4) return;
+          const box = cell.getBoundingClientRect();
+          const pct = Number(cell.dataset.pct || 0);
+          const tone = cell.dataset.tone || "";
+          if (!tone && !pct) return;
+          const left = box.left - origin.left;
+          const bandLeft = left + box.width * 0.75;
+          const bandRight = left + box.width - 2;
+          const t = Math.min(Math.max(pct, 0), 200) / 200;
+          const x = bandLeft + t * (bandRight - bandLeft);
+          paths += `<rect x="${x - 1.1}" y="${y1}" width="2.2" height="${barH}" rx="1.1" fill="${toneColor[tone] || toneColor.ok}"/>`;
+        });
+      });
+      vizSvg.innerHTML = paths;
+      return;
+    }
+
     const shiftX = mode === "graph";
     const cols = [[], [], [], [], []];
     const addRow = row => {
@@ -527,11 +553,6 @@
         pts.forEach(p => {
           const barH = 5 + Math.min(p.pct, 200) / 200 * 18;
           paths += `<rect x="${p.x - 1.05}" y="${p.y - barH / 2}" width="2.1" height="${barH}" rx="1" fill="${p.color}"/>`;
-        });
-      } else if (mode === "chart") {
-        pts.forEach(p => {
-          const barH = 10 + Math.min(p.pct, 200) / 200 * 38;
-          paths += `<rect x="${p.x - 1.25}" y="${p.y}" width="2.5" height="${barH}" rx="1.2" fill="${p.color}"/>`;
         });
       } else {
         paths += `<path d="${catmull(pts)}" fill="none" stroke="url(#flow${i})" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>`;
