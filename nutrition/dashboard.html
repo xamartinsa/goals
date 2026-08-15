@@ -655,16 +655,12 @@
   function render(entries) {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
-    const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
     const todayEmpty = !entries.some(x => x.date === today);
+    const dates = [...new Set(entries.map(x => x.date))].sort().reverse();
     app.innerHTML = dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
-      const titleDay = date === today && !rows.length ? "Сегодня пока пусто" : dayTitle(date, today, yesterday);
-      if (!rows.length) {
-        return `<section>
-      <div class="day-head"><h1>${titleDay}</h1></div>
-    </section>`;
-      }
+      if (!rows.length) return "";
+      const titleDay = dayTitle(date, today, yesterday);
       const t = total(rows);
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
