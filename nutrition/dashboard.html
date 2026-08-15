@@ -465,12 +465,12 @@
         const tone = cell.dataset.tone || "";
         if (!tone && !pct) return;
         const left = box.left - origin.left;
-        const mid = left + box.width / 2;
+        const bandLeft = left + box.width * 0.75;
         const bandRight = left + box.width - 2;
         const t = Math.min(Math.max(pct, 0), 200) / 200;
         const over = Math.max(0, pct - 110);
         cols[i].push({
-          x: shiftX ? mid + t * (bandRight - mid) : (mid + bandRight) / 2,
+          x: shiftX ? bandLeft + t * (bandRight - bandLeft) : (bandLeft + bandRight) / 2,
           y: box.top - origin.top + box.height / 2,
           r: 1.4 + pct * 0.014 + over * 0.022,
           color: toneColor[tone] || toneColor.ok,
