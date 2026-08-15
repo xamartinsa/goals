@@ -144,7 +144,11 @@
     .bars-3 .mark-signal .ring:nth-child(1),
     .bars-3 .mark-signal .ring:nth-child(2),
     .bars-3 .mark-signal .ring:nth-child(3) { opacity:1; }
-    .bars-4 .mark-signal .ring { opacity:1; }
+    .bars-4 .mark-signal .ring:nth-child(1),
+    .bars-4 .mark-signal .ring:nth-child(2),
+    .bars-4 .mark-signal .ring:nth-child(3),
+    .bars-4 .mark-signal .ring:nth-child(4) { opacity:1; }
+    .bars-5 .mark-signal .ring { opacity:1; }
     .meals {
       display:flex;
       flex-direction:column;
@@ -343,7 +347,7 @@
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
   // mode "ceiling": ккал/жиры/углеводы — перебор = high
-  const rings = `<circle class="ring" cx="8" cy="8" r="1.15" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.75" fill="none" stroke="currentColor" stroke-width="1.15"/><circle class="ring" cx="8" cy="8" r="4.55" fill="none" stroke="currentColor" stroke-width="1.15"/><circle class="ring" cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.15"/>`;
+  const rings = `<circle class="ring" cx="8" cy="8" r="1" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.35" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="3.8" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="6.7" fill="none" stroke="currentColor" stroke-width="1.05"/>`;
   const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
@@ -352,13 +356,14 @@
         const bars = valuePct < 50 ? 1 : 2;
         return `<span class="mark low bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
       }
+      if (valuePct >= 120) return `<span class="mark mark-ok bars-5" title="${valuePct}%">${signalSvg}</span>`;
       if (valuePct >= 95) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${signalSvg}</span>`;
       if (valuePct >= 70) return `<span class="mark mark-ok bars-3" title="${valuePct}%">${signalSvg}</span>`;
       if (valuePct >= 50) return `<span class="mark low bars-2" title="${valuePct}%">${signalSvg}</span>`;
       if (valuePct > 0) return `<span class="mark high bars-2" title="${valuePct}%">${signalSvg}</span>`;
       return "";
     }
-    const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
+    const bars = valuePct > 170 ? 5 : valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
     if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct >= 70) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${signalSvg}</span>`;
     if (valuePct >= 50) return `<span class="mark low bars-2" title="${valuePct}%">${signalSvg}</span>`;
