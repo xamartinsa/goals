@@ -27,7 +27,7 @@
       --card:#fff;
       --good:#28734a;
       --great:#14532d;
-      --low:#a16d00;
+      --low:#FF9500;
       --high:#FF3B30;
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-num:"IBM Plex Sans", system-ui, sans-serif;
@@ -135,6 +135,7 @@
     .mark svg { display:block; }
     .mark-ok { color:#12c45a; }
     .mark.high { color:var(--high); }
+    .mark.low { color:var(--low); }
     .mark-signal { width:14px; height:14px; }
     .mark-signal .ring { opacity:0; }
     .bars-1 .mark-signal .ring:nth-child(1) { opacity:1; }
@@ -339,7 +340,6 @@
     p:160, f:70, fiber:27.5
   };
   const trainingDays = new Set([0, 2, 5]); // вс, вт, пт
-  const fmt = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace(".",",");
   const fmtInt = n => String(Math.round(n));
   const percent = (value, target) => Math.round(value / target * 20) * 5;
   // mode "floor": белок/клетчатка — чем больше, тем лучше (не красить в красный)
