@@ -124,23 +124,24 @@
       color:var(--label);
     }
     .macros {
+      display:inline-flex;
+      align-items:center;
       font-family:var(--font-cond);
       font-size:17px;
-      line-height:1.45;
+      line-height:1.2;
       font-weight:500;
       letter-spacing:0;
     }
     .mark {
       display:inline-flex;
       align-items:center;
-      margin-left:0.28em;
-      vertical-align:-0.28em;
+      margin-left:0.22em;
     }
     .mark:empty { display:none; }
     .mark svg { display:block; }
     .mark-ok { color:#12c45a; }
     .mark.high { color:var(--high); }
-    .mark-signal { width:12px; height:12px; }
+    .mark-signal { width:14px; height:14px; }
     .mark-signal .tick {
       fill:none;
       stroke:#fff;
