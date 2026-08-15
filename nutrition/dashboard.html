@@ -329,9 +329,9 @@
       return "";
     }
     const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
-    return bars
-      ? `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`
-      : "";
+    if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
+    if (valuePct >= 70) return `<span class="mark great" title="${valuePct}%">${checkSvg}</span>`;
+    return "";
   };
   const dayExtra = (value, target, mode = "ceiling", opts = {}) => `${mark(value, target, mode, opts)}${pct(value, target, mode)}`;
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
