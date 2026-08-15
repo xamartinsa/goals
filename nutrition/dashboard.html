@@ -122,10 +122,15 @@
     }
     .mark:empty { display:none; }
     .mark svg { display:block; }
-    .mark-badge { width:15px; height:15px; }
     .mark-ok { color:#1f9d55; }
-    .mark-soft { color:#8aa88f; }
     .mark-signal { width:16px; height:16px; }
+    .mark-signal .tick {
+      fill:none;
+      stroke:#fff;
+      stroke-width:1.7;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
     .mark-signal .ring { opacity:.08; }
     .bars-1 .mark-signal .ring:nth-child(1) { opacity:.42; }
     .bars-2 .mark-signal .ring:nth-child(1) { opacity:.72; }
@@ -342,23 +347,24 @@
     }
     return `<span class="pct ${tone}">${valuePct}%</span>`;
   };
-  const checkOk = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="M4.2 8.2 6.8 10.7 11.8 5.4" fill="none" stroke="#fff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const checkSoft = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M4.4 8.2 6.8 10.5 11.6 5.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true"><circle class="ring" cx="8" cy="8" r="1.8" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`;
+  const rings = `<circle class="ring" cx="8" cy="8" r="1.8" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/>`;
+  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
+  const checkSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}<path class="tick" d="M4.15 8.2 6.75 10.7 11.85 5.35"/></svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
-      if (valuePct >= 95) return `<span class="mark mark-ok" title="${valuePct}%">${checkOk}</span>`;
-      if (opts.warnBelow) {
+      if (opts.warnBelow && valuePct < 95) {
         const bars = valuePct < 50 ? 1 : 2;
         return `<span class="mark low bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
       }
-      if (valuePct > 0) return `<span class="mark mark-soft" title="${valuePct}%">${checkSoft}</span>`;
+      if (valuePct >= 95) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${checkSvg}</span>`;
+      if (valuePct >= 70) return `<span class="mark mark-ok bars-3" title="${valuePct}%">${checkSvg}</span>`;
+      if (valuePct > 0) return `<span class="mark mark-ok bars-2" title="${valuePct}%">${checkSvg}</span>`;
       return "";
     }
     const bars = valuePct > 150 ? 4 : valuePct > 130 ? 3 : valuePct > 110 ? 2 : 0;
     if (bars) return `<span class="mark high bars-${bars}" title="${valuePct}%">${signalSvg}</span>`;
-    if (valuePct >= 70) return `<span class="mark mark-ok" title="${valuePct}%">${checkOk}</span>`;
+    if (valuePct >= 70) return `<span class="mark mark-ok bars-4" title="${valuePct}%">${checkSvg}</span>`;
     return "";
   };
   const dayExtra = (value, target, mode = "ceiling", opts = {}) => `${mark(value, target, mode, opts)}${pct(value, target, mode)}`;
