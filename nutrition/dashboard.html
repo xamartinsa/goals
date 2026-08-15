@@ -49,9 +49,34 @@
     h1 {
       font-size:26px;
       font-weight:700;
-      margin:0 0 14px;
+      margin:0;
       letter-spacing:-0.02em;
     }
+    .day-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin:0 0 14px;
+    }
+    .day-head h1 { flex:1; min-width:0; }
+    .chevron {
+      flex:0 0 auto;
+      width:18px;
+      height:18px;
+      color:var(--label);
+      transition:transform .15s ease;
+    }
+    .chevron svg { display:block; width:18px; height:18px; }
+    details.day > summary {
+      list-style:none;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    details.day > summary::-webkit-details-marker { display:none; }
+    details.day[open] .chevron { transform:rotate(180deg); }
+    details.day > summary .totals { margin-bottom:0; }
+    details.day[open] .meals { margin-top:8px; }
     .meta { margin:0 0 22px; color:var(--muted); font-size:13px; }
     .empty { margin:8px 0 0; color:var(--muted); }
     .totals {
@@ -424,13 +449,26 @@
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([label, value, extra]) => `<div class="total"><span class="total-label">${label}</span><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
       const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("");
-      return `<section>
-      <h1>${titleDay}</h1>
-      ${macrosRow(
+      const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
         {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
-      )}
+      );
+      const chevron = `<span class="chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3.2 5.6 8 10.4l4.8-4.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+      if (date === today) {
+        return `<section>
+      <div class="day-head"><h1>${titleDay}</h1></div>
+      ${totalsHtml}
       ${mealsHtml}
+    </section>`;
+      }
+      return `<section>
+      <details class="day">
+        <summary>
+          <div class="day-head"><h1>${titleDay}</h1>${chevron}</div>
+          ${totalsHtml}
+        </summary>
+        <div class="meals">${mealsHtml}</div>
+      </details>
     </section>`;
     }).join("");
   }
