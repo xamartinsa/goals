@@ -185,7 +185,7 @@
     .low { color:var(--low); }
     .high { color:var(--high); }
     .food { font-weight:400; }
-    section { margin:0 0 26px; position:relative; z-index:1; }
+    section { margin:0 0 26px; position:relative; z-index:0; }
     .board { position:relative; max-width:720px; margin:0 auto; }
     .viz-flow {
       position:absolute;
@@ -194,7 +194,7 @@
       width:100%;
       height:100%;
       pointer-events:none;
-      z-index:0;
+      z-index:2;
       overflow:visible;
     }
     body[data-viz="rings"] .viz-flow { display:none; }
@@ -462,12 +462,13 @@
         const pct = Number(cell.dataset.pct || 0);
         const tone = cell.dataset.tone || "";
         if (!tone && !pct) return;
-        const mid = box.left - origin.left + box.width / 2;
-        const half = box.width * 0.42;
-        const t = (Math.min(Math.max(pct, 0), 200) - 100) / 100;
+        const left = box.left - origin.left;
+        const mid = left + box.width / 2;
+        const bandRight = left + box.width - 2;
+        const t = Math.min(Math.max(pct, 0), 200) / 200;
         const over = Math.max(0, pct - 110);
         cols[i].push({
-          x: shiftX ? mid + t * half : mid,
+          x: shiftX ? mid + t * (bandRight - mid) : (mid + bandRight) / 2,
           y: box.top - origin.top + box.height / 2,
           r: 2.1 + pct * 0.022 + over * 0.035,
           color: toneColor[tone] || toneColor.ok,
