@@ -184,12 +184,28 @@
     .low { color:var(--low); }
     .high { color:var(--high); }
     .food { font-weight:400; }
-    section { margin:0 0 26px; }
+    section { margin:0 0 26px; position:relative; z-index:1; }
+    .board { position:relative; max-width:720px; margin:0 auto; }
+    .viz-flow {
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index:0;
+      overflow:visible;
+    }
+    body[data-viz="rings"] .viz-flow { display:none; }
+    body[data-viz="graph"] .mark { display:none; }
     .refresh-wrap {
       position:fixed;
       bottom:max(16px, env(safe-area-inset-bottom, 0px));
       right:max(16px, env(safe-area-inset-right, 0px));
       z-index:1000;
+      display:flex;
+      flex-direction:row;
+      gap:10px;
     }
     .refresh {
       appearance:none;
@@ -210,6 +226,8 @@
       touch-action:manipulation;
     }
     .refresh svg { width:22px; height:22px; display:block; }
+    body[data-viz="rings"] .viz-icon-rings { display:none; }
+    body[data-viz="graph"] .viz-icon-graph { display:none; }
     .refresh:active { background:rgba(220,220,220,.55); }
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
@@ -217,7 +235,7 @@
     @media (max-width:520px) { body { font-size:14px; } }
   </style>
 </head>
-<body>
+<body data-viz="rings">
 <header class="kbju-head">
   <div class="kbju-head-inner">
     <div class="totals">
@@ -229,8 +247,23 @@
     </div>
   </div>
 </header>
-<main id="app"></main>
+<div class="board">
+  <svg class="viz-flow" id="viz" aria-hidden="true"></svg>
+  <main id="app"></main>
+</div>
 <div class="refresh-wrap">
+  <button type="button" class="refresh" id="vizToggle" aria-label="График" title="График">
+    <svg class="viz-icon-graph" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#111" stroke-linecap="round">
+      <path d="M12 3c-2.2 4 2.4 6.5-1 11.2C8.6 17.4 13 19.2 12 22" stroke-width="2.4"/>
+      <path d="M7.2 4.2c-1.4 4 1.8 7-1 11.4" stroke-width="1.3" opacity=".4"/>
+      <path d="M16.8 4.5c1.2 3.8-1.6 7.2 1 11" stroke-width="1.3" opacity=".4"/>
+    </svg>
+    <svg class="viz-icon-rings" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#111" stroke-width="1.7">
+      <circle cx="12" cy="12" r="3.2"/>
+      <circle cx="12" cy="12" r="6.2"/>
+      <circle cx="12" cy="12" r="9"/>
+    </svg>
+  </button>
   <button type="button" class="refresh" id="refresh" aria-label="Обновить данные" title="Обновить">
     <!-- Mosaic refresh: black tesserae, Pompeii-like -->
     <svg viewBox="0 0 24 24" aria-hidden="true" shape-rendering="crispEdges">
@@ -370,10 +403,113 @@
     if (valuePct > 0) return `<span class="mark high bars-2" title="${valuePct}%">${signalSvg}</span>`;
     return "";
   };
+  const statusOf = (value, target, mode = "ceiling", opts = {}) => {
+    const valuePct = percent(value, target);
+    if (mode === "floor") {
+      if (opts.warnBelow && valuePct < 95) return {pct:valuePct, tone:"low"};
+      if (valuePct >= 70) return {pct:valuePct, tone:"ok"};
+      if (valuePct >= 50) return {pct:valuePct, tone:"low"};
+      if (valuePct > 0) return {pct:valuePct, tone:"high"};
+      return {pct:0, tone:""};
+    }
+    if (valuePct > 110) return {pct:valuePct, tone:"high"};
+    if (valuePct >= 70) return {pct:valuePct, tone:"ok"};
+    if (valuePct >= 50) return {pct:valuePct, tone:"low"};
+    if (valuePct > 0) return {pct:valuePct, tone:"high"};
+    return {pct:0, tone:""};
+  };
   const dayExtra = (value, target, mode = "ceiling", opts = {}) => mark(value, target, mode, opts);
   const total = xs => xs.reduce((a,x) => ({kcal:a.kcal+x.kcal,p:a.p+x.p,f:a.f+x.f,c:a.c+x.c,fiber:a.fiber+x.fiber}), {kcal:0,p:0,f:0,c:0,fiber:0});
   const app = document.querySelector("#app");
   const refreshBtn = document.querySelector("#refresh");
+  const vizSvg = document.querySelector("#viz");
+  const vizToggle = document.querySelector("#vizToggle");
+  const toneColor = {ok:"#12c45a", low:"#FF9500", high:"#FF3B30"};
+
+  const catmull = pts => {
+    if (!pts.length) return "";
+    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+      d += ` C ${p1.x + (p2.x - p0.x) / 6} ${p1.y + (p2.y - p0.y) / 6} ${p2.x - (p3.x - p1.x) / 6} ${p2.y - (p3.y - p1.y) / 6} ${p2.x} ${p2.y}`;
+    }
+    return d;
+  };
+
+  const ribbonPath = pts => {
+    if (pts.length === 1) {
+      const p = pts[0];
+      return `M ${p.x} ${p.y - p.r} A ${p.r} ${p.r} 0 1 1 ${p.x} ${p.y + p.r} A ${p.r} ${p.r} 0 1 1 ${p.x} ${p.y - p.r} Z`;
+    }
+    const right = pts.map(p => ({x:p.x + p.r, y:p.y}));
+    const left = pts.map(p => ({x:p.x - p.r, y:p.y})).reverse();
+    return `${catmull(right)} ${catmull(left).replace(/^M/, "L")} Z`;
+  };
+
+  function drawGraph() {
+    if (!vizSvg) return;
+    if (document.body.dataset.viz !== "graph") {
+      vizSvg.innerHTML = "";
+      return;
+    }
+    const board = vizSvg.parentElement;
+    const origin = app.getBoundingClientRect();
+    const boardBox = board.getBoundingClientRect();
+    const w = app.offsetWidth;
+    const h = app.offsetHeight;
+    vizSvg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    vizSvg.setAttribute("width", String(w));
+    vizSvg.setAttribute("height", String(h));
+    vizSvg.style.top = `${origin.top - boardBox.top}px`;
+    vizSvg.style.left = `${origin.left - boardBox.left}px`;
+    vizSvg.style.width = `${w}px`;
+    vizSvg.style.height = `${h}px`;
+
+    const rows = [...app.querySelectorAll(".day-totals")];
+    if (!rows.length) {
+      vizSvg.innerHTML = "";
+      return;
+    }
+
+    const cols = [[], [], [], [], []];
+    rows.forEach(row => {
+      [...row.children].forEach((cell, i) => {
+        if (i > 4) return;
+        const box = cell.getBoundingClientRect();
+        const pct = Number(cell.dataset.pct || 0);
+        const tone = cell.dataset.tone || "";
+        if (!tone || !pct) return;
+        const over = Math.max(0, pct - 110);
+        cols[i].push({
+          x: box.left - origin.left + box.width / 2,
+          y: box.top - origin.top + box.height / 2,
+          r: 2.1 + pct * 0.022 + over * 0.035,
+          color: toneColor[tone] || toneColor.ok,
+          pct
+        });
+      });
+    });
+
+    let defs = "";
+    let paths = "";
+    cols.forEach((pts, i) => {
+      if (pts.length < 1) return;
+      const y0 = pts[0].y;
+      const y1 = pts[pts.length - 1].y;
+      const span = Math.max(y1 - y0, 1);
+      const stops = pts.map(p => {
+        const off = ((p.y - y0) / span * 100).toFixed(1);
+        return `<stop offset="${off}%" stop-color="${p.color}"/>`;
+      }).join("");
+      defs += `<linearGradient id="flow${i}" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1}">${stops}</linearGradient>`;
+      paths += `<path d="${ribbonPath(pts)}" fill="url(#flow${i})" fill-opacity=".82"/>`;
+    });
+    vizSvg.innerHTML = `<defs>${defs}</defs>${paths}`;
+  }
   const csvUrls = [
     // raw обычно свежее: github.io иногда отдаёт старый log.csv из кэша Pages
     "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
@@ -483,20 +619,38 @@
         if (!whole || !part) return "";
         return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
       };
-      const macrosRow = (values, extras = {}) => `<div class="totals">${[
+      const macrosRow = (values, extras = {}, kind = "meal") => `<div class="totals${kind === "day" ? " day-totals" : ""}">${[
         ["Калории", values.kcal, extras.kcal],
         ["Белок", values.p, extras.p],
         ["Жиры", values.f, extras.f],
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
-      ].map(([, value, extra]) => `<div class="total"><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
+      ].map(([, value, extra], i) => {
+        const st = kind === "day" && extras.stat ? extras.stat[i] : null;
+        const data = st ? ` data-pct="${st.pct}" data-tone="${st.tone}"` : "";
+        return `<div class="total"${data}><span class="macros">${value}${extra || ""}</span></div>`;
+      }).join("")}</div>`;
       const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow(
         {kcal:fmtInt(x.kcal),p:fmtInt(x.p),f:fmtInt(x.f),c:fmtInt(x.c),fiber:fmtInt(x.fiber)},
         {kcal:share(x.kcal,t.kcal),p:share(x.p,t.p),f:share(x.f,t.f),c:share(x.c,t.c),fiber:share(x.fiber,t.fiber)}
       )}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
-        {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
+        {
+          kcal:dayExtra(t.kcal, kcalTarget),
+          p:dayExtra(t.p, targets.p, "floor"),
+          f:dayExtra(t.f, targets.f),
+          c:dayExtra(t.c, carbsTarget),
+          fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50}),
+          stat:[
+            statusOf(t.kcal, kcalTarget),
+            statusOf(t.p, targets.p, "floor"),
+            statusOf(t.f, targets.f),
+            statusOf(t.c, carbsTarget),
+            statusOf(t.fiber, targets.fiber, "floor", {warnBelow:50})
+          ]
+        },
+        "day"
       );
       if (date === today) {
         return `<section>
@@ -516,6 +670,7 @@
       </details>
     </section>`;
     }).join("");
+    requestAnimationFrame(drawGraph);
   }
 
   function fetchCsv(url) {
@@ -565,6 +720,24 @@
     });
   }
 
+  const applyViz = mode => {
+    document.body.dataset.viz = mode;
+    try { localStorage.setItem("dashboard-viz", mode); } catch (e) {}
+    vizToggle.setAttribute("aria-label", mode === "graph" ? "Кружки" : "График");
+    vizToggle.title = mode === "graph" ? "Кружки" : "График";
+    requestAnimationFrame(drawGraph);
+  };
+  let savedViz = "rings";
+  try {
+    const stored = localStorage.getItem("dashboard-viz");
+    if (stored === "graph" || stored === "rings") savedViz = stored;
+  } catch (e) {}
+  applyViz(savedViz);
+  vizToggle.addEventListener("click", () => {
+    applyViz(document.body.dataset.viz === "rings" ? "graph" : "rings");
+  });
+  app.addEventListener("toggle", () => requestAnimationFrame(drawGraph), true);
+  window.addEventListener("resize", () => requestAnimationFrame(drawGraph));
   refreshBtn.addEventListener("click", () => {
     refreshBtn.disabled = true;
     refreshBtn.classList.add("is-loading");
