@@ -12,7 +12,7 @@
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@400;600&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
@@ -28,7 +28,8 @@
       --great:#14532d;
       --low:#a16d00;
       --high:#b3261e;
-      --font:"Inter", system-ui, sans-serif;
+      --font:"IBM Plex Sans", system-ui, sans-serif;
+      --font-cond:"IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif;
     }
     * { box-sizing:border-box; }
     html, body { min-height:100%; }
@@ -74,13 +75,14 @@
       font-variant:small-caps;
       color:var(--muted);
     }
-    .macros {
+    .macros, .pct {
+      font-family:var(--font-cond);
       font-size:14px;
       line-height:1.45;
       font-weight:400;
-      letter-spacing:-0.01em;
+      letter-spacing:0;
     }
-    .pct { font-weight:400; }
+    .meal .totals { margin:6px 0 0; }
     .good { color:var(--good); }
     .great { color:var(--great); }
     .low { color:var(--low); }
@@ -357,16 +359,20 @@
       const isTrainingDay = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
       const kcalTarget = isTrainingDay ? targets.trainingKcal : targets.restKcal;
       const carbsTarget = isTrainingDay ? targets.trainingCarbs : targets.restCarbs;
-      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div><div class="macros">${fmt(x.kcal)} · Б ${fmt(x.p)} · Ж ${fmt(x.f)} · У ${fmt(x.c)} · кл. ${fmt(x.fiber)}</div></div>`).join("");
+      const macrosRow = (values, extras = {}) => `<div class="totals">${[
+        ["Калории", values.kcal, extras.kcal],
+        ["Белок", values.p, extras.p],
+        ["Жиры", values.f, extras.f],
+        ["Углеводы", values.c, extras.c],
+        ["Клетчатка", values.fiber, extras.fiber]
+      ].map(([label, value, extra]) => `<div class="total"><span class="total-label">${label}</span><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
+      const mealsHtml = rows.map(x => `<div class="meal"><div>${displayTime(x.time)}</div><div class="food">${escapeHtml(x.foods)}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("");
       return `<section>
       <h1>${titleDay}</h1>
-      <div class="totals">
-        <div class="total"><span class="total-label">Калории</span><span class="macros">${fmtInt(t.kcal)}${pct(t.kcal, kcalTarget)}</span></div>
-        <div class="total"><span class="total-label">Белок</span><span class="macros">${fmtInt(t.p)}${pct(t.p, targets.p, "floor")}</span></div>
-        <div class="total"><span class="total-label">Жиры</span><span class="macros">${fmtInt(t.f)}${pct(t.f, targets.f)}</span></div>
-        <div class="total"><span class="total-label">Углеводы</span><span class="macros">${fmtInt(t.c)}${pct(t.c, carbsTarget)}</span></div>
-        <div class="total"><span class="total-label">Клетчатка</span><span class="macros">${fmtInt(t.fiber)}${pct(t.fiber, targets.fiber, "floor")}</span></div>
-      </div>
+      ${macrosRow(
+        {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
+        {kcal:pct(t.kcal, kcalTarget),p:pct(t.p, targets.p, "floor"),f:pct(t.f, targets.f),c:pct(t.c, carbsTarget),fiber:pct(t.fiber, targets.fiber, "floor")}
+      )}
       ${mealsHtml}
     </section>`;
     }).join("");
