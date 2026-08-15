@@ -496,7 +496,7 @@
           const bandRight = left + box.width - 2;
           const t = Math.min(Math.max(pct, 0), 200) / 200;
           const x = bandLeft + t * (bandRight - bandLeft);
-          paths += `<rect x="${x - 1.1}" y="${y1}" width="2.2" height="${barH}" fill="${toneColor[tone] || toneColor.ok}"/>`;
+          paths += `<rect x="${x - 0.6}" y="${y1}" width="1.2" height="${barH}" fill="${toneColor[tone] || toneColor.ok}"/>`;
         });
       });
       vizSvg.innerHTML = paths;
