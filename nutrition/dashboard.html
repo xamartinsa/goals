@@ -428,13 +428,13 @@
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
     const dates = [...new Set([today, ...entries.map(x => x.date)])].sort().reverse();
+    const todayEmpty = !entries.some(x => x.date === today);
     app.innerHTML = dates.map(date => {
       const rows = entries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
-      const titleDay = dayTitle(date, today, yesterday);
+      const titleDay = date === today && !rows.length ? "Сегодня пока пусто" : dayTitle(date, today, yesterday);
       if (!rows.length) {
         return `<section>
       <div class="day-head"><h1>${titleDay}</h1></div>
-      <div class="empty">Пока ничего</div>
     </section>`;
       }
       const t = total(rows);
@@ -461,8 +461,9 @@
       ${mealsHtml}
     </section>`;
       }
+      const openYest = todayEmpty && date === yesterday;
       return `<section>
-      <details class="day">
+      <details class="day"${openYest ? " open" : ""}>
         <summary>
           <div class="day-head"><h1>${titleDay}</h1>${chevron}</div>
           ${totalsHtml}
