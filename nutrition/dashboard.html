@@ -385,7 +385,6 @@
     const minutes = hour * 60 + minute;
     return minutes < 360 ? minutes + 1440 : minutes;
   };
-  const displayTime = time => mealOrder(time) >= 1440 ? `${time} (+1)` : time;
   const escapeHtml = s => String(s)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -467,7 +466,7 @@
         ["Углеводы", values.c, extras.c],
         ["Клетчатка", values.fiber, extras.fiber]
       ].map(([, value, extra]) => `<div class="total"><span class="macros">${value}${extra || ""}</span></div>`).join("")}</div>`;
-      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${displayTime(x.time)}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
+      const mealsHtml = `<div class="meals">${rows.map(x => `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({kcal:fmt(x.kcal),p:fmt(x.p),f:fmt(x.f),c:fmt(x.c),fiber:fmt(x.fiber)})}</div>`).join("")}</div>`;
       const totalsHtml = macrosRow(
         {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
         {kcal:dayExtra(t.kcal, kcalTarget),p:dayExtra(t.p, targets.p, "floor"),f:dayExtra(t.f, targets.f),c:dayExtra(t.c, carbsTarget),fiber:dayExtra(t.fiber, targets.fiber, "floor", {warnBelow:50})}
