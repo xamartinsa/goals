@@ -12,7 +12,7 @@
   <title>Питание</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Barlow+Extra+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Fragment+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=rollback1">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=rollback1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=rollback1">
@@ -30,7 +30,7 @@
       --low:#a16d00;
       --high:#FF3B30;
       --font:"IBM Plex Sans", system-ui, sans-serif;
-      --font-cond:"Barlow Extra Condensed", "IBM Plex Sans Condensed", sans-serif;
+      --font-num:"Fragment Mono", ui-monospace, monospace;
       --gutter:22px;
       --head-h:36px;
     }
@@ -118,11 +118,13 @@
     .macros {
       display:inline-flex;
       align-items:center;
-      font-family:var(--font-cond);
-      font-size:17px;
+      font-family:var(--font-num);
+      font-size:15px;
       line-height:1.2;
-      font-weight:500;
+      font-weight:400;
       letter-spacing:0;
+      font-feature-settings:"zero" 0, "liga" 0, "calt" 0;
+      font-variant-numeric:tabular-nums lining-nums;
     }
     .mark {
       display:inline-flex;
