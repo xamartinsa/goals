@@ -125,12 +125,18 @@
     .mark-badge { width:15px; height:15px; }
     .mark-ok { color:#1f9d55; }
     .mark-soft { color:#8aa88f; }
-    .mark-signal { width:15px; height:15px; }
-    .mark-signal .ring { opacity:.18; }
-    .bars-1 .mark-signal .ring:nth-child(-n+1) { opacity:1; }
-    .bars-2 .mark-signal .ring:nth-child(-n+2) { opacity:1; }
-    .bars-3 .mark-signal .ring:nth-child(-n+3) { opacity:1; }
-    .bars-4 .mark-signal .ring { opacity:1; }
+    .mark-signal { width:16px; height:16px; }
+    .mark-signal .ring { opacity:.08; }
+    .bars-1 .mark-signal .ring:nth-child(1) { opacity:.42; }
+    .bars-2 .mark-signal .ring:nth-child(1) { opacity:.72; }
+    .bars-2 .mark-signal .ring:nth-child(2) { opacity:.42; }
+    .bars-3 .mark-signal .ring:nth-child(1) { opacity:.88; }
+    .bars-3 .mark-signal .ring:nth-child(2) { opacity:.62; }
+    .bars-3 .mark-signal .ring:nth-child(3) { opacity:.38; }
+    .bars-4 .mark-signal .ring:nth-child(1) { opacity:1; }
+    .bars-4 .mark-signal .ring:nth-child(2) { opacity:.75; }
+    .bars-4 .mark-signal .ring:nth-child(3) { opacity:.5; }
+    .bars-4 .mark-signal .ring:nth-child(4) { opacity:.25; }
     body[data-view="icons"] .pct { display:none; }
     body[data-view="pct"] .mark { display:none; }
     .view-toggle {
@@ -335,7 +341,7 @@
   };
   const checkOk = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="M4.2 8.2 6.8 10.7 11.8 5.4" fill="none" stroke="#fff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const checkSoft = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M4.4 8.2 6.8 10.5 11.6 5.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true"><circle class="ring" cx="8" cy="8" r="1.35" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="3.15" fill="none" stroke="currentColor" stroke-width="1.25"/><circle class="ring" cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.25"/><circle class="ring" cx="8" cy="8" r="6.85" fill="none" stroke="currentColor" stroke-width="1.25"/></svg>`;
+  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true"><circle class="ring" cx="8" cy="8" r="1.8" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle class="ring" cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
