@@ -125,12 +125,12 @@
     .mark-badge { width:15px; height:15px; }
     .mark-ok { color:#1f9d55; }
     .mark-soft { color:#8aa88f; }
-    .mark-signal { width:14px; height:12px; }
-    .mark-signal rect { fill:currentColor; opacity:.18; }
-    .bars-1 .mark-signal rect:nth-child(-n+1) { opacity:1; }
-    .bars-2 .mark-signal rect:nth-child(-n+2) { opacity:1; }
-    .bars-3 .mark-signal rect:nth-child(-n+3) { opacity:1; }
-    .bars-4 .mark-signal rect { opacity:1; }
+    .mark-signal { width:15px; height:15px; }
+    .mark-signal .ring { opacity:.18; }
+    .bars-1 .mark-signal .ring:nth-child(-n+1) { opacity:1; }
+    .bars-2 .mark-signal .ring:nth-child(-n+2) { opacity:1; }
+    .bars-3 .mark-signal .ring:nth-child(-n+3) { opacity:1; }
+    .bars-4 .mark-signal .ring { opacity:1; }
     body[data-view="icons"] .pct { display:none; }
     body[data-view="pct"] .mark { display:none; }
     .view-toggle {
@@ -321,7 +321,7 @@
   };
   const checkOk = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.5" fill="currentColor"/><path d="M4.2 8.2 6.8 10.7 11.8 5.4" fill="none" stroke="#fff" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const checkSoft = `<svg class="mark-badge" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.35"/><path d="M4.4 8.2 6.8 10.5 11.6 5.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 12" aria-hidden="true"><rect x="0.5" y="8" width="2.6" height="4" rx="0.4"/><rect x="4.6" y="5.4" width="2.6" height="6.6" rx="0.4"/><rect x="8.7" y="2.7" width="2.6" height="9.3" rx="0.4"/><rect x="12.8" y="0" width="2.6" height="12" rx="0.4"/></svg>`;
+  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true"><circle class="ring" cx="8" cy="8" r="1.35" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="3.15" fill="none" stroke="currentColor" stroke-width="1.25"/><circle class="ring" cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.25"/><circle class="ring" cx="8" cy="8" r="6.85" fill="none" stroke="currentColor" stroke-width="1.25"/></svg>`;
   const mark = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
