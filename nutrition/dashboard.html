@@ -33,23 +33,26 @@
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-num:"IBM Plex Sans", system-ui, sans-serif;
       --gutter:22px;
-      --head-h:36px;
+      --panel:#f2f2f2;
     }
     * { box-sizing:border-box; }
-    html, body { min-height:100%; background:#fff; }
+    html, body {
+      height:100%;
+      height:100dvh;
+      overflow:hidden;
+      background:#fff;
+    }
     body {
       margin:0;
       background:#fff;
       color:var(--ink);
       font:16px/1.45 var(--font);
       letter-spacing:-0.01em;
+      display:flex;
+      flex-direction:column;
     }
     .kbju-head {
-      position:fixed;
-      top:0;
-      left:0;
-      right:0;
-      z-index:30;
+      flex:0 0 auto;
       background:#fff;
       padding-top:env(safe-area-inset-top, 0px);
     }
@@ -59,10 +62,17 @@
       padding:14px var(--gutter) 8px;
     }
     .kbju-head .totals { margin:0; }
+    .feed {
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      background:var(--panel);
+    }
     main {
       max-width:720px;
       margin:0 auto;
-      padding:calc(var(--head-h) + env(safe-area-inset-top, 0px) + 10px) var(--gutter) calc(120px + env(safe-area-inset-bottom, 0px));
+      padding:10px var(--gutter) calc(120px + env(safe-area-inset-bottom, 0px));
     }
     h1 {
       font-size:11px;
@@ -87,6 +97,11 @@
     details.day > summary::-webkit-details-marker { display:none; }
     details.day > summary .totals { margin-bottom:0; }
     details.day[open] .meals { margin-top:10px; }
+    .day-strip {
+      background:#fff;
+      margin:0 calc(-1 * var(--gutter));
+      padding:0 var(--gutter);
+    }
     .meta { margin:0 0 22px; color:var(--muted); font-size:13px; }
     .empty { margin:8px 0 0; color:var(--muted); }
     .totals {
@@ -159,7 +174,7 @@
       border-radius:0;
       position:relative;
       z-index:3;
-      background:#f7f5f2;
+      background:transparent;
     }
     .meal { padding:0; border:0; background:none; }
     .meal-time {
@@ -259,9 +274,11 @@
     </div>
   </div>
 </header>
+<div class="feed">
 <div class="board">
   <svg class="viz-flow" id="viz" aria-hidden="true"></svg>
   <main id="app"></main>
+</div>
 </div>
 <div class="refresh-wrap">
   <button type="button" class="refresh" id="vizToggle" aria-label="График" title="График">
@@ -710,8 +727,10 @@
       );
       if (date === today) {
         return `<section>
-      <div class="day-head"><h1>${titleDay}</h1></div>
-      ${totalsHtml}
+      <div class="day-strip">
+        <div class="day-head"><h1>${titleDay}</h1></div>
+        ${totalsHtml}
+      </div>
       ${mealsHtml}
     </section>`;
       }
@@ -719,8 +738,10 @@
       return `<section>
       <details class="day"${openYest ? " open" : ""}>
         <summary>
-          <div class="day-head"><h1>${titleDay}</h1></div>
-          ${totalsHtml}
+          <div class="day-strip">
+            <div class="day-head"><h1>${titleDay}</h1></div>
+            ${totalsHtml}
+          </div>
         </summary>
         ${mealsHtml}
       </details>
@@ -795,6 +816,7 @@
     applyViz(vizCycle[document.body.dataset.viz] || "graph");
   });
   app.addEventListener("toggle", () => requestAnimationFrame(drawGraph), true);
+  document.querySelector(".feed")?.addEventListener("scroll", () => requestAnimationFrame(drawGraph), {passive:true});
   window.addEventListener("resize", () => requestAnimationFrame(drawGraph));
   refreshBtn.addEventListener("click", () => {
     refreshBtn.disabled = true;
