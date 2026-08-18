@@ -51,7 +51,6 @@
       right:0;
       z-index:30;
       background:#fff;
-      border-bottom:0.5px solid var(--line);
       padding-top:env(safe-area-inset-top, 0px);
     }
     .kbju-head-inner {
@@ -220,7 +219,7 @@
       width:44px;
       height:44px;
       padding:0;
-      border:0.5px solid var(--line);
+      border:0;
       border-radius:50%;
       background:#fff;
       color:#000;
@@ -241,7 +240,7 @@
     body[data-viz="bars"] .refresh svg.viz-icon-chart { display:block; }
     body[data-viz="chart"] .refresh svg.viz-icon-ribbon { display:block; }
     body[data-viz="ribbon"] .refresh svg.viz-icon-rings { display:block; }
-    .refresh:active { background:#f5f5f5; }
+    .refresh:active { background:#fff; }
     .refresh[disabled] { opacity:.55; cursor:wait; }
     .refresh.is-loading svg { animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
