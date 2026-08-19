@@ -410,7 +410,7 @@
     return d;
   };
 
-  function drawRowGraph(rowEl, dates) {
+  function drawRowGraph(rowEl) {
     const svg = rowEl.querySelector(".row-viz");
     const track = rowEl.querySelector(".row-track");
     if (!svg || !track) return;
@@ -421,26 +421,33 @@
     svg.setAttribute("width", String(w));
     svg.setAttribute("height", String(h));
 
-    const pts = [];
-    rowEl.querySelectorAll(".day-cell").forEach(cell => {
-      const pct = Number(cell.dataset.pct || 0);
-      const tone = cell.dataset.tone || "";
-      if (!tone && !pct) return;
-      const box = cell.getBoundingClientRect();
-      const trackBox = track.getBoundingClientRect();
-      const x = box.left + box.width / 2 - trackBox.left;
-      const y = h / 2;
-      pts.push({
-        x, y,
-        color: toneColor[tone] || toneColor.ok,
-        pct
-      });
-    });
-
-    if (!pts.length) {
+    const cells = [...rowEl.querySelectorAll(".day-cell")];
+    if (!cells.length) {
       svg.innerHTML = "";
       return;
     }
+
+    const values = cells.map(cell => Number(cell.dataset.value || 0));
+    const minV = Math.min(...values);
+    const maxV = Math.max(...values);
+    const range = maxV - minV || 1;
+    const pad = 5;
+    const usable = Math.max(h - 2 * pad, 1);
+
+    const pts = cells.map(cell => {
+      const value = Number(cell.dataset.value || 0);
+      const pct = Number(cell.dataset.pct || 0);
+      const tone = cell.dataset.tone || "";
+      const box = cell.getBoundingClientRect();
+      const trackBox = track.getBoundingClientRect();
+      const x = box.left + box.width / 2 - trackBox.left;
+      const y = pad + (maxV - value) / range * usable;
+      return {
+        x, y,
+        color: tone ? (toneColor[tone] || toneColor.ok) : toneColor.ok,
+        pct
+      };
+    });
 
     const x0 = pts[0].x;
     const x1 = pts[pts.length - 1].x;
@@ -450,11 +457,12 @@
       return `<stop offset="${off}%" stop-color="${p.color}"/>`;
     }).join("");
     const path = catmull(pts);
-    svg.innerHTML = `<defs><linearGradient id="g${rowEl.dataset.metric}" gradientUnits="userSpaceOnUse" x1="${x0}" y1="0" x2="${x1}" y2="0">${stops}</linearGradient></defs><path d="${path}" fill="none" stroke="url(#g${rowEl.dataset.metric})" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const metric = rowEl.dataset.metric || "m";
+    svg.innerHTML = `<defs><linearGradient id="g${metric}" gradientUnits="userSpaceOnUse" x1="${x0}" y1="0" x2="${x1}" y2="0">${stops}</linearGradient></defs><path d="${path}" fill="none" stroke="url(#g${metric})" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>`;
   }
 
   function drawAllGraphs() {
-    matrixBody.querySelectorAll(".matrix-row").forEach(row => drawRowGraph(row, datesCache));
+    matrixBody.querySelectorAll(".matrix-row").forEach(row => drawRowGraph(row));
   }
 
   function renderMatrix() {
@@ -477,7 +485,7 @@
         const target = m.key === "kcal" ? dt.kcal : m.key === "c" ? dt.carbs : targets[m.key];
         const value = t[m.key];
         const st = statusOf(value, target, m.mode, m.warnBelow ? {warnBelow:true} : {});
-        return `<div class="day-cell" data-date="${date}" data-pct="${st.pct}" data-tone="${st.tone}">${fmtInt(value)}</div>`;
+        return `<div class="day-cell" data-date="${date}" data-value="${value}" data-pct="${st.pct}" data-tone="${st.tone}">${fmtInt(value)}</div>`;
       }).join("");
       return `<div class="matrix-row" data-metric="${m.key}"><div class="row-track"><svg class="row-viz" aria-hidden="true"></svg><div class="row-cells">${cells}</div></div></div>`;
     }).join("");
