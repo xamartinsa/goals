@@ -201,7 +201,6 @@
       -webkit-overflow-scrolling:touch;
       padding:0 16px 16px;
     }
-    .day-panel-body > .totals,
     .day-panel-body > .empty {
       margin-top:10px;
     }
@@ -222,10 +221,10 @@
       color:var(--label);
       margin-left:0.1em;
     }
-    .meals { display:flex; flex-direction:column; gap:14px; }
-    .meal-time { font-size:11px; margin:0 0 2px; }
-    .meal .food { font-size:11px; }
-    .meal .totals { margin:4px 0 0; }
+    .meals { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+    .meal-time { font-size:11px; margin:0; line-height:1.2; }
+    .meal .food { font-size:11px; margin-top:2px; }
+    .meal .totals { margin:1px 0 0; }
     .empty { color:var(--muted); font-size:13px; }
     .refresh {
       position:fixed;
@@ -520,18 +519,15 @@
       if (!whole || !part) return "";
       return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
     };
-    const totalsHtml = macrosRow({
-      kcal:fmtInt(t.kcal), p:fmtInt(t.p), f:fmtInt(t.f), c:fmtInt(t.c), fiber:fmtInt(t.fiber)
-    });
     const mealsHtml = rows.map(x => {
       const shares = [
         share(x.kcal,t.kcal), share(x.p,t.p), share(x.f,t.f), share(x.c,t.c), share(x.fiber,t.fiber)
       ];
-      return `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({
+      return `<div class="meal"><div class="meal-time">${x.time}</div>${macrosRow({
         kcal:fmtInt(x.kcal), p:fmtInt(x.p), f:fmtInt(x.f), c:fmtInt(x.c), fiber:fmtInt(x.fiber)
-      }, shares)}</div>`;
+      }, shares)}<div class="food">${escapeHtml(prettyFoods(x.foods))}</div></div>`;
     }).join("");
-    panelBody.innerHTML = totalsHtml + `<div class="meals">${mealsHtml}</div>`;
+    panelBody.innerHTML = `<div class="meals">${mealsHtml}</div>`;
   }
 
   function render() {
