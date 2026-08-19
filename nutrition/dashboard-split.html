@@ -27,6 +27,7 @@
       --label-col:62px;
       --footer-h:34px;
       --plaque-pad:12px;
+      --label-gap:18px;
       --panel-gutter:12px;
     }
     * { box-sizing:border-box; }
@@ -62,7 +63,7 @@
     .matrix-fixed {
       flex:0 0 var(--label-col);
       padding-left:max(12px, env(safe-area-inset-left));
-      padding-right:10px;
+      padding-right:var(--label-gap);
       display:flex;
       flex-direction:column;
       min-height:0;
