@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=split1">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=split2">
   <style>
     :root {
       --ink:#000;
@@ -21,10 +21,10 @@
       --high:#FF3B30;
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-num:"IBM Plex Sans", system-ui, sans-serif;
-      --gutter:16px;
       --meals:#f0ebe6;
-      --panel:color-mix(in srgb, var(--meals) 50%, #fff);
       --split:50%;
+      --col:72px;
+      --letter:14px;
     }
     * { box-sizing:border-box; }
     html, body {
@@ -47,110 +47,142 @@
       flex:0 0 var(--split);
       min-height:0;
       background:#fff;
-      border-bottom:2px solid var(--meals);
       padding-top:env(safe-area-inset-top, 0px);
       display:flex;
       flex-direction:column;
+      position:relative;
     }
-    .top-bar {
-      flex:0 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      padding:8px var(--gutter) 6px;
+    .top-link {
+      position:absolute;
+      top:env(safe-area-inset-top, 0px);
+      right:max(8px, env(safe-area-inset-right));
+      z-index:2;
+      padding:6px 0;
+      text-align:right;
     }
-    .top-bar h2 {
-      margin:0;
-      font-size:11px;
-      font-weight:600;
-      color:var(--muted);
-      text-transform:uppercase;
-      font-variant:small-caps;
-    }
-    .top-bar a {
+    .top-link a {
       font-size:11px;
       color:var(--muted);
       text-decoration:none;
     }
-    .matrix-scroll {
+    .matrix-layout {
       flex:1 1 auto;
       min-height:0;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      padding:0 var(--gutter) 10px;
+      display:flex;
     }
-    .matrix {
-      border-collapse:separate;
-      border-spacing:0;
-      width:max-content;
-      min-width:100%;
+    .matrix-fixed {
+      flex:0 0 var(--letter);
+      padding-left:max(4px, env(safe-area-inset-left));
+      display:flex;
+      flex-direction:column;
+      min-height:0;
     }
-    .matrix th,
-    .matrix td {
-      padding:6px 10px;
-      vertical-align:middle;
-      white-space:nowrap;
-    }
-    .matrix thead th {
-      font-size:11px;
-      font-weight:600;
-      color:var(--ink);
-      text-align:center;
-      border-bottom:1px solid #e8e8e8;
-      position:sticky;
-      top:0;
-      background:#fff;
-      z-index:2;
-    }
-    .matrix .metric-head {
-      text-align:left;
-      font-size:8px;
-      font-weight:700;
-      text-transform:uppercase;
-      font-variant:small-caps;
-      color:var(--label);
-      position:sticky;
-      left:0;
-      background:#fff;
-      z-index:1;
-      min-width:72px;
-    }
-    .matrix thead .metric-head { z-index:3; }
-    .matrix .day-col {
-      cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-      text-align:center;
-      min-width:64px;
-      border-radius:8px;
-    }
-    .matrix .day-col.is-today { font-weight:600; }
-    .matrix .day-col.is-active {
-      background:var(--meals);
-    }
-    .matrix .day-head.is-active {
-      background:var(--meals);
-    }
-    .cell-val {
+    .matrix-fixed .metric-letter {
+      flex:1 1 0;
       display:flex;
       align-items:center;
-      justify-content:center;
-      gap:4px;
+      justify-content:flex-start;
+      font-size:11px;
+      font-weight:400;
+      color:var(--label);
+      line-height:1;
+    }
+    .matrix-fixed .metric-letter.footer-spacer {
+      flex:0 0 auto;
+      min-height:36px;
+    }
+    .matrix-scroll {
+      flex:1 1 auto;
+      min-width:0;
+      min-height:0;
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling:touch;
+      display:flex;
+      flex-direction:column;
+    }
+    .matrix-inner {
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+      min-width:max-content;
+    }
+    .matrix-body {
+      flex:1 1 auto;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+    .matrix-row {
+      flex:1 1 0;
+      min-height:28px;
+      display:flex;
+      position:relative;
+    }
+    .row-track {
+      flex:0 0 auto;
+      width:calc(var(--col) * var(--day-count, 7));
+      position:relative;
+      height:100%;
+    }
+    .row-viz {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+    }
+    .row-cells {
+      display:flex;
+      height:100%;
+      position:relative;
+      z-index:1;
+    }
+    .day-cell {
+      flex:0 0 var(--col);
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      padding-left:4px;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
       font-family:var(--font-num);
-      font-size:13px;
+      font-size:14px;
+      font-weight:400;
+      color:var(--ink);
       font-feature-settings:"tnum" 1, "lnum" 1;
       font-variant-numeric:tabular-nums lining-nums;
     }
-    .mark-signal { width:14px; height:14px; flex-shrink:0; }
-    .mark-signal .ring { opacity:0; }
-    .bars-1 .ring:nth-child(1) { opacity:1; }
-    .bars-2 .ring:nth-child(1), .bars-2 .ring:nth-child(2) { opacity:1; }
-    .bars-3 .ring:nth-child(1), .bars-3 .ring:nth-child(2), .bars-3 .ring:nth-child(3) { opacity:1; }
-    .bars-4 .ring:nth-child(1), .bars-4 .ring:nth-child(2), .bars-4 .ring:nth-child(3), .bars-4 .ring:nth-child(4) { opacity:1; }
-    .bars-5 .ring { opacity:1; }
-    .tone-ok { color:var(--good); }
-    .tone-low { color:var(--low); }
-    .tone-high { color:var(--high); }
+    .matrix-footer {
+      flex:0 0 auto;
+      display:flex;
+      padding-top:4px;
+      padding-bottom:10px;
+    }
+    .day-label {
+      flex:0 0 var(--col);
+      padding:0;
+      font-size:11px;
+      font-weight:400;
+      color:var(--ink);
+      text-align:left;
+      line-height:1.25;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      position:relative;
+    }
+    .day-label .day-label-text {
+      display:block;
+      padding-left:4px;
+    }
+    .day-label.is-active::after {
+      content:"";
+      display:block;
+      height:3px;
+      background:var(--ink);
+      margin-top:8px;
+      margin-bottom:6px;
+    }
     .bottom-pane {
       flex:1 1 auto;
       min-height:0;
@@ -164,15 +196,14 @@
       display:flex;
       align-items:center;
       gap:10px;
-      padding:12px var(--gutter) 8px;
+      padding:12px 16px 8px;
       background:var(--meals);
-      border-bottom:1px solid color-mix(in srgb, var(--meals) 30%, #000);
     }
     .day-panel-head h1 {
       margin:0;
       flex:1;
       font-size:15px;
-      font-weight:600;
+      font-weight:400;
     }
     .day-panel-close {
       appearance:none;
@@ -193,55 +224,35 @@
       min-height:0;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
-      padding:0 var(--gutter) 16px;
+      padding:0 16px 16px;
     }
     .totals {
       display:flex;
       gap:12px;
       margin:0 0 12px;
     }
-    .total {
-      flex:1 1 0;
-      min-width:0;
-    }
+    .total { flex:1 1 0; min-width:0; }
     .macros {
-      display:flex;
-      align-items:center;
-      gap:4px;
       font-family:var(--font-num);
       font-size:14px;
+      color:var(--ink);
       font-feature-settings:"tnum" 1, "lnum" 1;
     }
-    .macros-signal {
-      flex:0 0 14px;
-      width:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .macros-signal:empty { visibility:hidden; }
     .share {
       font-size:8px;
       color:var(--label);
       margin-left:0.1em;
     }
-    .meals {
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
+    .meals { display:flex; flex-direction:column; gap:14px; }
     .meal-time { font-size:11px; margin:0 0 2px; }
     .meal .food { font-size:11px; }
     .meal .totals { margin:4px 0 0; }
-    .meal .total-label { display:none; }
     .empty { color:var(--muted); font-size:13px; }
-    .refresh-wrap {
+    .refresh {
       position:fixed;
       bottom:max(12px, env(safe-area-inset-bottom, 0px));
       right:max(12px, env(safe-area-inset-right, 0px));
       z-index:100;
-    }
-    .refresh {
       appearance:none;
       width:44px;
       height:44px;
@@ -261,15 +272,18 @@
 <body>
 <div class="shell">
   <div class="top-pane">
-    <div class="top-bar">
-      <h2>Дни</h2>
-      <a href="dashboard.html">Классический вид</a>
-    </div>
-    <div class="matrix-scroll" id="matrixWrap">
-      <table class="matrix" id="matrix" aria-label="КБЖУ по дням"></table>
+    <div class="top-link"><a href="dashboard.html">Классический</a></div>
+    <div class="matrix-layout">
+      <div class="matrix-fixed" id="matrixFixed"></div>
+      <div class="matrix-scroll" id="matrixScroll">
+        <div class="matrix-inner" id="matrixInner">
+          <div class="matrix-body" id="matrixBody"></div>
+          <div class="matrix-footer" id="matrixFooter"></div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="bottom-pane" id="dayPanel">
+  <div class="bottom-pane">
     <div class="day-panel-head">
       <h1 id="panelTitle">—</h1>
       <button type="button" class="day-panel-close" id="panelClose" aria-label="Назад к сегодня">×</button>
@@ -277,7 +291,7 @@
     <div class="day-panel-body" id="panelBody"></div>
   </div>
 </div>
-<button type="button" class="refresh" id="refresh" aria-label="Обновить" title="Обновить">
+<button type="button" class="refresh" id="refresh" aria-label="Обновить">
   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round">
     <path d="M19.6 12a7.6 7.6 0 1 1-2.15-5.35"/>
     <path d="M19.6 4.2v4.15h-4.15"/>
@@ -294,33 +308,10 @@
     p:160, f:70, fiber:27.5
   };
   const trainingDays = new Set([0, 2, 5]);
+  const toneColor = {ok:"#12c45a", low:"#FF9500", high:"#FF3B30"};
   const fmtInt = n => String(Math.round(n));
   const percent = (value, target) => Math.round(value / target * 20) * 5;
-  const rings = `<circle class="ring" cx="8" cy="8" r="1" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.35" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="3.8" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="6.7" fill="none" stroke="currentColor" stroke-width="1.05"/>`;
-  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
-  const markHtml = (value, target, mode = "ceiling", opts = {}) => {
-    const valuePct = percent(value, target);
-    let bars = 0, tone = "";
-    if (mode === "floor") {
-      if (opts.warnBelow && valuePct < 95) {
-        bars = valuePct < 50 ? 1 : 2;
-        tone = "low";
-      } else if (valuePct >= 120) { bars = 5; tone = "ok"; }
-      else if (valuePct >= 95) { bars = 4; tone = "ok"; }
-      else if (valuePct >= 70) { bars = 3; tone = "ok"; }
-      else if (valuePct >= 50) { bars = 2; tone = "low"; }
-      else if (valuePct > 0) { bars = 2; tone = "high"; }
-    } else {
-      bars = valuePct > 170 ? 5 : valuePct > 150 ? 4 : valuePct > 130 ? 3 : 0;
-      if (bars) tone = "high";
-      else if (valuePct > 110) { bars = 2; tone = "low"; }
-      else if (valuePct >= 70) { bars = 4; tone = "ok"; }
-      else if (valuePct >= 50) { bars = 2; tone = "low"; }
-      else if (valuePct > 0) { bars = 2; tone = "high"; }
-    }
-    if (!bars) return "";
-    return `<span class="bars-${bars} tone-${tone}">${signalSvg}</span>`;
-  };
+
   const statusOf = (value, target, mode = "ceiling", opts = {}) => {
     const valuePct = percent(value, target);
     if (mode === "floor") {
@@ -337,11 +328,15 @@
     if (valuePct > 0) return {pct:valuePct, tone:"high"};
     return {pct:0, tone:""};
   };
+
   const total = xs => xs.reduce((a,x) => ({
     kcal:a.kcal+x.kcal, p:a.p+x.p, f:a.f+x.f, c:a.c+x.c, fiber:a.fiber+x.fiber
   }), {kcal:0,p:0,f:0,c:0,fiber:0});
 
-  const matrixEl = document.querySelector("#matrix");
+  const matrixFixed = document.querySelector("#matrixFixed");
+  const matrixBody = document.querySelector("#matrixBody");
+  const matrixFooter = document.querySelector("#matrixFooter");
+  const matrixInner = document.querySelector("#matrixInner");
   const panelTitle = document.querySelector("#panelTitle");
   const panelBody = document.querySelector("#panelBody");
   const panelClose = document.querySelector("#panelClose");
@@ -349,6 +344,15 @@
 
   let allEntries = [];
   let peekDate = null;
+  let datesCache = [];
+
+  const metrics = [
+    { key:"kcal", letter:"К", mode:"ceiling" },
+    { key:"p", letter:"Б", mode:"floor" },
+    { key:"f", letter:"Ж", mode:"ceiling" },
+    { key:"c", letter:"У", mode:"ceiling" },
+    { key:"fiber", letter:"В", mode:"floor", warnBelow:true }
+  ];
 
   const mealOrder = time => {
     const [hour, minute] = time.split(":").map(Number);
@@ -373,10 +377,10 @@
     dt.setUTCDate(dt.getUTCDate() + days);
     return dt.toISOString().slice(0, 10);
   }
-  const monthNames = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+  const monthNames = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   function dayTitle(date, today, yesterday) {
-    if (date === today) return "Сегодня";
-    if (date === yesterday) return "Вчера";
+    if (date === today) return "сегодня";
+    if (date === yesterday) return "вчера";
     const [y, m, d] = date.split("-").map(Number);
     return `${d} ${monthNames[m - 1]}`;
   }
@@ -420,61 +424,106 @@
     };
   }
 
-  const metrics = [
-    { key:"kcal", label:"Калории", mode:"ceiling" },
-    { key:"p", label:"Белок", mode:"floor" },
-    { key:"f", label:"Жиры", mode:"ceiling" },
-    { key:"c", label:"Углеводы", mode:"ceiling" },
-    { key:"fiber", label:"Клетчатка", mode:"floor", warnBelow:true }
-  ];
+  const catmull = pts => {
+    if (!pts.length) return "";
+    if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+      d += ` C ${p1.x + (p2.x - p0.x) / 6} ${p1.y + (p2.y - p0.y) / 6} ${p2.x - (p3.x - p1.x) / 6} ${p2.y - (p3.y - p1.y) / 6} ${p2.x} ${p2.y}`;
+    }
+    return d;
+  };
+
+  function drawRowGraph(rowEl, dates) {
+    const svg = rowEl.querySelector(".row-viz");
+    const track = rowEl.querySelector(".row-track");
+    if (!svg || !track) return;
+    const w = track.offsetWidth;
+    const h = track.offsetHeight;
+    if (!w || !h) return;
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svg.setAttribute("width", String(w));
+    svg.setAttribute("height", String(h));
+
+    const pts = [];
+    rowEl.querySelectorAll(".day-cell").forEach(cell => {
+      const pct = Number(cell.dataset.pct || 0);
+      const tone = cell.dataset.tone || "";
+      if (!tone && !pct) return;
+      const box = cell.getBoundingClientRect();
+      const trackBox = track.getBoundingClientRect();
+      const x = box.left + box.width / 2 - trackBox.left;
+      const y = h / 2;
+      pts.push({
+        x, y,
+        color: toneColor[tone] || toneColor.ok,
+        pct
+      });
+    });
+
+    if (!pts.length) {
+      svg.innerHTML = "";
+      return;
+    }
+
+    const x0 = pts[0].x;
+    const x1 = pts[pts.length - 1].x;
+    const span = Math.max(x1 - x0, 1);
+    const stops = pts.map(p => {
+      const off = ((p.x - x0) / span * 100).toFixed(1);
+      return `<stop offset="${off}%" stop-color="${p.color}"/>`;
+    }).join("");
+    const path = catmull(pts);
+    svg.innerHTML = `<defs><linearGradient id="g${rowEl.dataset.metric}" gradientUnits="userSpaceOnUse" x1="${x0}" y1="0" x2="${x1}" y2="0">${stops}</linearGradient></defs><path d="${path}" fill="none" stroke="url(#g${rowEl.dataset.metric})" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+
+  function drawAllGraphs() {
+    matrixBody.querySelectorAll(".matrix-row").forEach(row => drawRowGraph(row, datesCache));
+  }
 
   function renderMatrix() {
     const today = moscowToday();
     const yesterday = shiftDate(today, -1);
     const dates = [...new Set(allEntries.map(x => x.date))].sort().reverse();
+    datesCache = dates;
     const active = activeDate();
-    const headCells = dates.map(date => {
-      const title = dayTitle(date, today, yesterday);
-      const cls = [
-        "day-col day-head",
-        date === today ? "is-today" : "",
-        date === active ? "is-active" : ""
-      ].filter(Boolean).join(" ");
-      return `<th class="${cls}" data-date="${date}" role="button">${title}</th>`;
-    }).join("");
+    matrixInner.style.setProperty("--day-count", String(dates.length));
 
-    const bodyRows = metrics.map(m => {
+    matrixFixed.innerHTML = metrics.map(m =>
+      `<div class="metric-letter">${m.letter}</div>`
+    ).join("") + `<div class="metric-letter footer-spacer"></div>`;
+
+    matrixBody.innerHTML = metrics.map(m => {
       const cells = dates.map(date => {
         const rows = allEntries.filter(x => x.date === date);
         const t = total(rows);
         const dt = dayTargets(date);
-        const target = m.key === "kcal" ? dt.kcal
-          : m.key === "c" ? dt.carbs
-          : targets[m.key];
+        const target = m.key === "kcal" ? dt.kcal : m.key === "c" ? dt.carbs : targets[m.key];
         const value = t[m.key];
         const st = statusOf(value, target, m.mode, m.warnBelow ? {warnBelow:true} : {});
-        const mark = markHtml(value, target, m.mode, m.warnBelow ? {warnBelow:true} : {});
-        const toneCls = st.tone ? `tone-${st.tone}` : "";
-        const cls = [
-          "day-col",
-          date === active ? "is-active" : "",
-          date === today ? "is-today" : ""
-        ].filter(Boolean).join(" ");
-        return `<td class="${cls}" data-date="${date}" role="button"><div class="cell-val ${toneCls}">${mark}<span>${fmtInt(value)}</span></div></td>`;
+        return `<div class="day-cell" data-date="${date}" data-pct="${st.pct}" data-tone="${st.tone}">${fmtInt(value)}</div>`;
       }).join("");
-      return `<tr><th class="metric-head">${m.label}</th>${cells}</tr>`;
+      return `<div class="matrix-row" data-metric="${m.key}"><div class="row-track"><svg class="row-viz" aria-hidden="true"></svg><div class="row-cells">${cells}</div></div></div>`;
     }).join("");
 
-    matrixEl.innerHTML = `<thead><tr><th class="metric-head"></th>${headCells}</tr></thead><tbody>${bodyRows}</tbody>`;
+    matrixFooter.innerHTML = dates.map(date => {
+      const title = dayTitle(date, today, yesterday);
+      const cls = date === active ? "day-label is-active" : "day-label";
+      return `<div class="${cls}" data-date="${date}"><span class="day-label-text">${title}</span></div>`;
+    }).join("");
+
+    requestAnimationFrame(drawAllGraphs);
   }
 
-  function macrosRow(values, extras, kind) {
+  function macrosRow(values, shares) {
     const keys = ["kcal","p","f","c","fiber"];
-    return `<div class="totals">${keys.map((k, i) => {
-      const shareHtml = kind === "meal" ? (extras.share?.[i] || "") : "";
-      const mark = kind === "day" ? (extras.marks?.[i] || "") : "";
-      return `<div class="total"><span class="macros"><span class="macros-signal">${mark}</span><span>${values[k]}${shareHtml}</span></span></div>`;
-    }).join("")}</div>`;
+    return `<div class="totals">${keys.map((k, i) =>
+      `<div class="total"><span class="macros">${values[k]}${shares?.[i] || ""}</span></div>`
+    ).join("")}</div>`;
   }
 
   function renderPanel() {
@@ -483,7 +532,6 @@
     const date = activeDate();
     const rows = allEntries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
     const t = total(rows);
-    const dt = dayTargets(date);
     panelTitle.textContent = dayTitle(date, today, yesterday);
     panelClose.classList.toggle("visible", peekDate && peekDate !== today);
 
@@ -496,27 +544,16 @@
       if (!whole || !part) return "";
       return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
     };
-    const dayMarks = [
-      markHtml(t.kcal, dt.kcal),
-      markHtml(t.p, targets.p, "floor"),
-      markHtml(t.f, targets.f),
-      markHtml(t.c, dt.carbs),
-      markHtml(t.fiber, targets.fiber, "floor", {warnBelow:true})
-    ];
-    const totalsHtml = macrosRow(
-      {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
-      { marks: dayMarks },
-      "day"
-    );
+    const totalsHtml = macrosRow({
+      kcal:fmtInt(t.kcal), p:fmtInt(t.p), f:fmtInt(t.f), c:fmtInt(t.c), fiber:fmtInt(t.fiber)
+    });
     const mealsHtml = rows.map(x => {
       const shares = [
         share(x.kcal,t.kcal), share(x.p,t.p), share(x.f,t.f), share(x.c,t.c), share(x.fiber,t.fiber)
       ];
-      return `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow(
-        {kcal:fmtInt(x.kcal),p:fmtInt(x.p),f:fmtInt(x.f),c:fmtInt(x.c),fiber:fmtInt(x.fiber)},
-        { share: shares },
-        "meal"
-      )}</div>`;
+      return `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow({
+        kcal:fmtInt(x.kcal), p:fmtInt(x.p), f:fmtInt(x.f), c:fmtInt(x.c), fiber:fmtInt(x.fiber)
+      }, shares)}</div>`;
     }).join("");
     panelBody.innerHTML = totalsHtml + `<div class="meals">${mealsHtml}</div>`;
   }
@@ -532,16 +569,21 @@
     render();
   }
 
-  matrixEl.addEventListener("click", e => {
+  matrixBody.addEventListener("click", e => {
     const cell = e.target.closest("[data-date]");
     if (!cell) return;
     selectDay(cell.dataset.date);
   });
-
+  matrixFooter.addEventListener("click", e => {
+    const cell = e.target.closest("[data-date]");
+    if (!cell) return;
+    selectDay(cell.dataset.date);
+  });
   panelClose.addEventListener("click", () => {
     peekDate = null;
     render();
   });
+  window.addEventListener("resize", () => requestAnimationFrame(drawAllGraphs));
 
   function fetchCsv(url) {
     const bust = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
