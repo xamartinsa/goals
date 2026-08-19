@@ -159,44 +159,32 @@
       flex:0 0 var(--footer-h);
       display:flex;
       padding:0;
-      padding-bottom:var(--footer-gap);
       box-sizing:border-box;
+      align-items:flex-end;
     }
     .day-label {
       flex:0 0 var(--col);
-      min-height:calc(var(--footer-h) - var(--footer-gap));
       padding:0;
-      font-size:11px;
-      font-weight:400;
-      color:var(--ink);
-      text-align:left;
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       display:flex;
       flex-direction:column;
       justify-content:flex-end;
+      align-self:stretch;
     }
     .day-label .day-label-text {
       display:block;
-      padding-left:4px;
+      padding:2px 4px var(--plaque-pad) 4px;
       line-height:1.25;
-      flex:0 0 auto;
       font-size:9px;
       font-weight:400;
       color:var(--ink);
       font-family:var(--font);
       letter-spacing:0;
       text-transform:uppercase;
+      box-sizing:border-box;
     }
-    .day-label::after {
-      content:"";
-      display:block;
-      flex:0 0 var(--plaque-h);
-      height:var(--plaque-h);
-      width:100%;
-      background:transparent;
-    }
-    .day-label.is-active::after {
+    .day-label.is-active .day-label-text {
       background:var(--meals);
       border-radius:8px 8px 0 0;
     }
