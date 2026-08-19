@@ -25,11 +25,10 @@
       --split:30%;
       --col:72px;
       --label-col:62px;
-      --footer-h:34px;
-      --plaque-pad:12px;
+      --footer-h:30px;
+      --day-plaque-pad:8px;
       --label-gap:18px;
       --panel-gutter:12px;
-      --panel-pad-y:10px;
       --day-plaque-inset:6px;
     }
     * { box-sizing:border-box; }
@@ -177,7 +176,7 @@
     }
     .day-label .day-label-text {
       display:block;
-      padding:2px 4px var(--plaque-pad) 4px;
+      padding:var(--day-plaque-pad);
       line-height:1.25;
       font-size:9px;
       font-weight:400;
@@ -198,7 +197,7 @@
       background:#fff;
       display:flex;
       flex-direction:column;
-      padding:var(--panel-pad-y) max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
+      padding:0 max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
     }
     .day-panel-wrap {
       flex:1 1 auto;
@@ -214,7 +213,7 @@
       -webkit-overflow-scrolling:touch;
       background:var(--meals);
       border-radius:12px;
-      padding:0 16px 16px;
+      padding:16px 16px 16px;
     }
     .day-panel-fade {
       position:absolute;
@@ -235,7 +234,7 @@
       margin-top:10px;
     }
     .empty { color:var(--muted); font-size:13px; }
-    .meals { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .meals { display:flex; flex-direction:column; gap:10px; margin-top:0; }
     .meal-time {
       font-size:11px;
       margin:0;
