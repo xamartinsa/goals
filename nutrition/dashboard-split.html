@@ -52,19 +52,6 @@
       flex-direction:column;
       position:relative;
     }
-    .top-link {
-      position:absolute;
-      top:env(safe-area-inset-top, 0px);
-      right:max(8px, env(safe-area-inset-right));
-      z-index:2;
-      padding:6px 0;
-      text-align:right;
-    }
-    .top-link a {
-      font-size:11px;
-      color:var(--muted);
-      text-decoration:none;
-    }
     .matrix-layout {
       flex:1 1 auto;
       min-height:0;
@@ -272,7 +259,6 @@
 <body>
 <div class="shell">
   <div class="top-pane">
-    <div class="top-link"><a href="dashboard.html">Классический</a></div>
     <div class="matrix-layout">
       <div class="matrix-fixed" id="matrixFixed"></div>
       <div class="matrix-scroll" id="matrixScroll">
