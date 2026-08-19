@@ -33,7 +33,7 @@
       --font:"IBM Plex Sans", system-ui, sans-serif;
       --font-num:"IBM Plex Sans", system-ui, sans-serif;
       --gutter:22px;
-      --meals:#f7f5f2;
+      --meals:#f0ebe6;
       --panel:color-mix(in srgb, var(--meals) 50%, #fff);
     }
     * { box-sizing:border-box; }
@@ -56,6 +56,7 @@
       flex:0 0 auto;
       background:#fff;
       padding-top:env(safe-area-inset-top, 0px);
+      box-shadow:0 3px 0 0 var(--meals);
     }
     .kbju-head-inner {
       max-width:720px;
@@ -128,8 +129,10 @@
       color:var(--label);
     }
     .macros {
-      display:inline-flex;
+      display:flex;
       align-items:center;
+      width:100%;
+      gap:4px;
       font-family:var(--font-num);
       font-size:14px;
       line-height:1.2;
@@ -138,10 +141,24 @@
       font-feature-settings:"tnum" 1, "lnum" 1, "zero" 0;
       font-variant-numeric:tabular-nums lining-nums;
     }
+    .macros-nums {
+      flex:1 1 auto;
+      min-width:0;
+      display:inline-flex;
+      align-items:center;
+    }
+    .macros-signal {
+      flex:0 0 14px;
+      width:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .macros-signal:empty { visibility:hidden; }
     .mark {
       display:inline-flex;
       align-items:center;
-      margin-left:0.22em;
+      margin-left:0;
     }
     .mark:empty { display:none; }
     .mark svg { display:block; }
@@ -239,6 +256,7 @@
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
       touch-action:manipulation;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
     }
     .refresh svg { width:22px; height:22px; display:block; }
     .refresh svg.viz-icon-graph,
@@ -484,6 +502,12 @@
     vizSvg.style.width = `${w}px`;
     vizSvg.style.height = `${h}px`;
 
+    const signalBox = cell => {
+      const el = cell.querySelector(".macros-signal");
+      if (el) return el.getBoundingClientRect();
+      return cell.getBoundingClientRect();
+    };
+
     if (mode === "chart") {
       let paths = "";
       const days = [...app.querySelectorAll("section")].filter(sec => sec.querySelector(".day-totals"));
@@ -498,38 +522,31 @@
         const barH = Math.max(secBox.height + padTop + padBot, 1);
         [...day.children].forEach((cell, i) => {
           if (i > 4) return;
-          const box = cell.getBoundingClientRect();
+          const box = signalBox(cell);
           const pct = Number(cell.dataset.pct || 0);
           const tone = cell.dataset.tone || "";
           if (!tone && !pct) return;
-          const left = box.left - origin.left;
-          const bandLeft = left + box.width * 0.75;
-          const bandRight = left + box.width - 2;
-          const t = Math.min(Math.max(pct, 0), 200) / 200;
-          const x = bandLeft + t * (bandRight - bandLeft);
-          paths += `<rect x="${x - 0.6}" y="${y1}" width="1.2" height="${barH}" fill="${toneColor[tone] || toneColor.ok}"/>`;
+          const cx = box.left + box.width / 2 - origin.left;
+          const x = cx - 0.6;
+          paths += `<rect x="${x}" y="${y1}" width="1.2" height="${barH}" fill="${toneColor[tone] || toneColor.ok}"/>`;
         });
       });
       vizSvg.innerHTML = paths;
       return;
     }
 
-    const shiftX = mode === "graph";
     const cols = [[], [], [], [], []];
     const addRow = row => {
       [...row.children].forEach((cell, i) => {
         if (i > 4) return;
-        const box = cell.getBoundingClientRect();
+        const box = signalBox(cell);
         const pct = Number(cell.dataset.pct || 0);
         const tone = cell.dataset.tone || "";
         if (!tone && !pct) return;
-        const left = box.left - origin.left;
-        const bandLeft = left + box.width * 0.75;
-        const bandRight = left + box.width - 2;
-        const t = Math.min(Math.max(pct, 0), 200) / 200;
+        const cx = box.left + box.width / 2 - origin.left;
         const over = Math.max(0, pct - 110);
         cols[i].push({
-          x: shiftX ? bandLeft + t * (bandRight - bandLeft) : (bandLeft + bandRight) / 2,
+          x: cx,
           y: box.top - origin.top + box.height / 2,
           r: 1.4 + pct * 0.014 + over * 0.022,
           color: toneColor[tone] || toneColor.ok,
@@ -689,7 +706,9 @@
       ].map(([, value, extra], i) => {
         const st = extras.stat ? extras.stat[i] : null;
         const data = st ? ` data-pct="${st.pct}" data-tone="${st.tone}"` : "";
-        return `<div class="total"${data}><span class="macros">${value}${extra || ""}</span></div>`;
+        const shareHtml = kind === "meal" ? (extra || "") : "";
+        const markHtml = kind === "day" ? (extra || "") : "";
+        return `<div class="total"${data}><span class="macros"><span class="macros-nums">${value}${shareHtml}</span><span class="macros-signal">${markHtml}</span></span></div>`;
       }).join("")}</div>`;
       const mealStat = x => [
         statusOf(x.kcal, kcalTarget),
