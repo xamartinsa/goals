@@ -59,8 +59,8 @@
       display:flex;
     }
     .matrix-fixed {
-      flex:0 0 var(--letter);
-      padding-left:max(4px, env(safe-area-inset-left));
+      flex:0 0 var(--label-col);
+      padding-left:max(12px, env(safe-area-inset-left));
       display:flex;
       flex-direction:column;
       min-height:0;
@@ -70,10 +70,11 @@
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      font-size:11px;
+      font-size:10px;
       font-weight:400;
       color:var(--label);
       line-height:1;
+      letter-spacing:0;
     }
     .matrix-fixed .metric-letter.footer-spacer {
       flex:0 0 auto;
@@ -318,11 +319,11 @@
   let datesCache = [];
 
   const metrics = [
-    { key:"kcal", letter:"К", mode:"ceiling" },
-    { key:"p", letter:"Б", mode:"floor" },
-    { key:"f", letter:"Ж", mode:"ceiling" },
-    { key:"c", letter:"У", mode:"ceiling" },
-    { key:"fiber", letter:"В", mode:"floor", warnBelow:true }
+    { key:"kcal", letter:"кал", mode:"ceiling" },
+    { key:"p", letter:"бел", mode:"floor" },
+    { key:"f", letter:"жир", mode:"ceiling" },
+    { key:"c", letter:"угл", mode:"ceiling" },
+    { key:"fiber", letter:"клч", mode:"floor", warnBelow:true }
   ];
 
   const mealOrder = time => {
