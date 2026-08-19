@@ -29,6 +29,8 @@
       --plaque-pad:12px;
       --label-gap:18px;
       --panel-gutter:12px;
+      --panel-pad-y:10px;
+      --day-plaque-inset:6px;
     }
     * { box-sizing:border-box; }
     html, body {
@@ -187,7 +189,8 @@
     }
     .day-label.is-active .day-label-text {
       background:var(--meals);
-      border-radius:8px 8px 0 0;
+      margin-left:var(--day-plaque-inset);
+      margin-right:var(--day-plaque-inset);
     }
     .bottom-pane {
       flex:1 1 auto;
@@ -195,7 +198,7 @@
       background:#fff;
       display:flex;
       flex-direction:column;
-      padding:0 max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
+      padding:var(--panel-pad-y) max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
     }
     .day-panel-wrap {
       flex:1 1 auto;
