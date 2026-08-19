@@ -383,8 +383,20 @@
   }
 
   function activeDate() {
+    return peekDate || pickDefaultDate();
+  }
+
+  function hasEntries(date) {
+    return allEntries.some(x => x.date === date);
+  }
+
+  function pickDefaultDate() {
     const today = moscowToday();
-    return peekDate && peekDate !== today ? peekDate : today;
+    if (hasEntries(today)) return today;
+    const yesterday = shiftDate(today, -1);
+    if (hasEntries(yesterday)) return yesterday;
+    const dates = [...new Set(allEntries.map(x => x.date))].sort();
+    return dates.length ? dates[dates.length - 1] : today;
   }
 
   function dayTargets(date) {
@@ -536,8 +548,7 @@
   }
 
   function selectDay(date) {
-    const today = moscowToday();
-    peekDate = date === today ? null : date;
+    peekDate = date;
     render();
   }
 
@@ -574,7 +585,7 @@
           return;
         }
         allEntries = parseCsv(texts[0]);
-        peekDate = null;
+        peekDate = pickDefaultDate();
         render();
       })
       .finally(() => {
