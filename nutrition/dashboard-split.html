@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#ffffff">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Питание — таблица</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=split1">
+  <style>
+    :root {
+      --ink:#000;
+      --muted:#555;
+      --label:#9a9a9a;
+      --good:#12c45a;
+      --low:#FF9500;
+      --high:#FF3B30;
+      --font:"IBM Plex Sans", system-ui, sans-serif;
+      --font-num:"IBM Plex Sans", system-ui, sans-serif;
+      --gutter:16px;
+      --meals:#f0ebe6;
+      --panel:color-mix(in srgb, var(--meals) 50%, #fff);
+      --split:50%;
+    }
+    * { box-sizing:border-box; }
+    html, body {
+      height:100%;
+      height:100dvh;
+      margin:0;
+      overflow:hidden;
+      background:#fff;
+      color:var(--ink);
+      font:15px/1.4 var(--font);
+      letter-spacing:-0.01em;
+    }
+    .shell {
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      height:100dvh;
+    }
+    .top-pane {
+      flex:0 0 var(--split);
+      min-height:0;
+      background:#fff;
+      border-bottom:2px solid var(--meals);
+      padding-top:env(safe-area-inset-top, 0px);
+      display:flex;
+      flex-direction:column;
+    }
+    .top-bar {
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:8px var(--gutter) 6px;
+    }
+    .top-bar h2 {
+      margin:0;
+      font-size:11px;
+      font-weight:600;
+      color:var(--muted);
+      text-transform:uppercase;
+      font-variant:small-caps;
+    }
+    .top-bar a {
+      font-size:11px;
+      color:var(--muted);
+      text-decoration:none;
+    }
+    .matrix-scroll {
+      flex:1 1 auto;
+      min-height:0;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      padding:0 var(--gutter) 10px;
+    }
+    .matrix {
+      border-collapse:separate;
+      border-spacing:0;
+      width:max-content;
+      min-width:100%;
+    }
+    .matrix th,
+    .matrix td {
+      padding:6px 10px;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    .matrix thead th {
+      font-size:11px;
+      font-weight:600;
+      color:var(--ink);
+      text-align:center;
+      border-bottom:1px solid #e8e8e8;
+      position:sticky;
+      top:0;
+      background:#fff;
+      z-index:2;
+    }
+    .matrix .metric-head {
+      text-align:left;
+      font-size:8px;
+      font-weight:700;
+      text-transform:uppercase;
+      font-variant:small-caps;
+      color:var(--label);
+      position:sticky;
+      left:0;
+      background:#fff;
+      z-index:1;
+      min-width:72px;
+    }
+    .matrix thead .metric-head { z-index:3; }
+    .matrix .day-col {
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      text-align:center;
+      min-width:64px;
+      border-radius:8px;
+    }
+    .matrix .day-col.is-today { font-weight:600; }
+    .matrix .day-col.is-active {
+      background:var(--meals);
+    }
+    .matrix .day-head.is-active {
+      background:var(--meals);
+    }
+    .cell-val {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      font-family:var(--font-num);
+      font-size:13px;
+      font-feature-settings:"tnum" 1, "lnum" 1;
+      font-variant-numeric:tabular-nums lining-nums;
+    }
+    .mark-signal { width:14px; height:14px; flex-shrink:0; }
+    .mark-signal .ring { opacity:0; }
+    .bars-1 .ring:nth-child(1) { opacity:1; }
+    .bars-2 .ring:nth-child(1), .bars-2 .ring:nth-child(2) { opacity:1; }
+    .bars-3 .ring:nth-child(1), .bars-3 .ring:nth-child(2), .bars-3 .ring:nth-child(3) { opacity:1; }
+    .bars-4 .ring:nth-child(1), .bars-4 .ring:nth-child(2), .bars-4 .ring:nth-child(3), .bars-4 .ring:nth-child(4) { opacity:1; }
+    .bars-5 .ring { opacity:1; }
+    .tone-ok { color:var(--good); }
+    .tone-low { color:var(--low); }
+    .tone-high { color:var(--high); }
+    .bottom-pane {
+      flex:1 1 auto;
+      min-height:0;
+      background:var(--meals);
+      display:flex;
+      flex-direction:column;
+      padding-bottom:env(safe-area-inset-bottom, 0px);
+    }
+    .day-panel-head {
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px var(--gutter) 8px;
+      background:var(--meals);
+      border-bottom:1px solid color-mix(in srgb, var(--meals) 30%, #000);
+    }
+    .day-panel-head h1 {
+      margin:0;
+      flex:1;
+      font-size:15px;
+      font-weight:600;
+    }
+    .day-panel-close {
+      appearance:none;
+      border:0;
+      background:#fff;
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      font-size:18px;
+      line-height:1;
+      cursor:pointer;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06);
+      display:none;
+    }
+    .day-panel-close.visible { display:grid; place-items:center; }
+    .day-panel-body {
+      flex:1 1 auto;
+      min-height:0;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      padding:0 var(--gutter) 16px;
+    }
+    .totals {
+      display:flex;
+      gap:12px;
+      margin:0 0 12px;
+    }
+    .total {
+      flex:1 1 0;
+      min-width:0;
+    }
+    .macros {
+      display:flex;
+      align-items:center;
+      gap:4px;
+      font-family:var(--font-num);
+      font-size:14px;
+      font-feature-settings:"tnum" 1, "lnum" 1;
+    }
+    .macros-signal {
+      flex:0 0 14px;
+      width:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .macros-signal:empty { visibility:hidden; }
+    .share {
+      font-size:8px;
+      color:var(--label);
+      margin-left:0.1em;
+    }
+    .meals {
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .meal-time { font-size:11px; margin:0 0 2px; }
+    .meal .food { font-size:11px; }
+    .meal .totals { margin:4px 0 0; }
+    .meal .total-label { display:none; }
+    .empty { color:var(--muted); font-size:13px; }
+    .refresh-wrap {
+      position:fixed;
+      bottom:max(12px, env(safe-area-inset-bottom, 0px));
+      right:max(12px, env(safe-area-inset-right, 0px));
+      z-index:100;
+    }
+    .refresh {
+      appearance:none;
+      width:44px;
+      height:44px;
+      border:0;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+    }
+    .refresh[disabled] { opacity:.55; }
+    .refresh.is-loading svg { animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="top-pane">
+    <div class="top-bar">
+      <h2>Дни</h2>
+      <a href="dashboard.html">Классический вид</a>
+    </div>
+    <div class="matrix-scroll" id="matrixWrap">
+      <table class="matrix" id="matrix" aria-label="КБЖУ по дням"></table>
+    </div>
+  </div>
+  <div class="bottom-pane" id="dayPanel">
+    <div class="day-panel-head">
+      <h1 id="panelTitle">—</h1>
+      <button type="button" class="day-panel-close" id="panelClose" aria-label="Назад к сегодня">×</button>
+    </div>
+    <div class="day-panel-body" id="panelBody"></div>
+  </div>
+</div>
+<button type="button" class="refresh" id="refresh" aria-label="Обновить" title="Обновить">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round">
+    <path d="M19.6 12a7.6 7.6 0 1 1-2.15-5.35"/>
+    <path d="M19.6 4.2v4.15h-4.15"/>
+  </svg>
+</button>
+<script>
+  const csvUrls = [
+    "https://raw.githubusercontent.com/xamartinsa/goals/cursor/nutrition-tracker-agent-5da8/nutrition/log.csv",
+    "log.csv"
+  ];
+  const targets = {
+    restKcal:2250, trainingKcal:2500,
+    restCarbs:245, trainingCarbs:308,
+    p:160, f:70, fiber:27.5
+  };
+  const trainingDays = new Set([0, 2, 5]);
+  const fmtInt = n => String(Math.round(n));
+  const percent = (value, target) => Math.round(value / target * 20) * 5;
+  const rings = `<circle class="ring" cx="8" cy="8" r="1" fill="currentColor"/><circle class="ring" cx="8" cy="8" r="2.35" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="3.8" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="5.25" fill="none" stroke="currentColor" stroke-width="1.05"/><circle class="ring" cx="8" cy="8" r="6.7" fill="none" stroke="currentColor" stroke-width="1.05"/>`;
+  const signalSvg = `<svg class="mark-signal" viewBox="0 0 16 16" aria-hidden="true">${rings}</svg>`;
+  const markHtml = (value, target, mode = "ceiling", opts = {}) => {
+    const valuePct = percent(value, target);
+    let bars = 0, tone = "";
+    if (mode === "floor") {
+      if (opts.warnBelow && valuePct < 95) {
+        bars = valuePct < 50 ? 1 : 2;
+        tone = "low";
+      } else if (valuePct >= 120) { bars = 5; tone = "ok"; }
+      else if (valuePct >= 95) { bars = 4; tone = "ok"; }
+      else if (valuePct >= 70) { bars = 3; tone = "ok"; }
+      else if (valuePct >= 50) { bars = 2; tone = "low"; }
+      else if (valuePct > 0) { bars = 2; tone = "high"; }
+    } else {
+      bars = valuePct > 170 ? 5 : valuePct > 150 ? 4 : valuePct > 130 ? 3 : 0;
+      if (bars) tone = "high";
+      else if (valuePct > 110) { bars = 2; tone = "low"; }
+      else if (valuePct >= 70) { bars = 4; tone = "ok"; }
+      else if (valuePct >= 50) { bars = 2; tone = "low"; }
+      else if (valuePct > 0) { bars = 2; tone = "high"; }
+    }
+    if (!bars) return "";
+    return `<span class="bars-${bars} tone-${tone}">${signalSvg}</span>`;
+  };
+  const statusOf = (value, target, mode = "ceiling", opts = {}) => {
+    const valuePct = percent(value, target);
+    if (mode === "floor") {
+      if (opts.warnBelow && valuePct < 95) return {pct:valuePct, tone:"low"};
+      if (valuePct >= 70) return {pct:valuePct, tone:"ok"};
+      if (valuePct >= 50) return {pct:valuePct, tone:"low"};
+      if (valuePct > 0) return {pct:valuePct, tone:"high"};
+      return {pct:0, tone:""};
+    }
+    if (valuePct > 130) return {pct:valuePct, tone:"high"};
+    if (valuePct > 110) return {pct:valuePct, tone:"low"};
+    if (valuePct >= 70) return {pct:valuePct, tone:"ok"};
+    if (valuePct >= 50) return {pct:valuePct, tone:"low"};
+    if (valuePct > 0) return {pct:valuePct, tone:"high"};
+    return {pct:0, tone:""};
+  };
+  const total = xs => xs.reduce((a,x) => ({
+    kcal:a.kcal+x.kcal, p:a.p+x.p, f:a.f+x.f, c:a.c+x.c, fiber:a.fiber+x.fiber
+  }), {kcal:0,p:0,f:0,c:0,fiber:0});
+
+  const matrixEl = document.querySelector("#matrix");
+  const panelTitle = document.querySelector("#panelTitle");
+  const panelBody = document.querySelector("#panelBody");
+  const panelClose = document.querySelector("#panelClose");
+  const refreshBtn = document.querySelector("#refresh");
+
+  let allEntries = [];
+  let peekDate = null;
+
+  const mealOrder = time => {
+    const [hour, minute] = time.split(":").map(Number);
+    const minutes = hour * 60 + minute;
+    return minutes < 360 ? minutes + 1440 : minutes;
+  };
+  const escapeHtml = s => String(s)
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+  const prettyFoods = s => String(s)
+    .replace(/кофе фильтр/gi, "фильтр-кофе")
+    .replace(/(^|;\s*)(\S)/g, (_, p, c) => p + c.toLocaleUpperCase("ru"));
+
+  function moscowToday() {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Moscow",
+      year: "numeric", month: "2-digit", day: "2-digit"
+    }).format(new Date());
+  }
+  function shiftDate(isoDate, days) {
+    const [y, m, d] = isoDate.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    return dt.toISOString().slice(0, 10);
+  }
+  const monthNames = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+  function dayTitle(date, today, yesterday) {
+    if (date === today) return "Сегодня";
+    if (date === yesterday) return "Вчера";
+    const [y, m, d] = date.split("-").map(Number);
+    return `${d} ${monthNames[m - 1]}`;
+  }
+
+  function parseCsv(text) {
+    const rows = [], row = [];
+    let field = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      if (quoted) {
+        if (char === '"' && text[i + 1] === '"') { field += '"'; i++; }
+        else if (char === '"') quoted = false;
+        else field += char;
+      } else if (char === '"') quoted = true;
+      else if (char === ",") { row.push(field); field = ""; }
+      else if (char === "\n") { row.push(field); rows.push(row.splice(0)); field = ""; }
+      else if (char !== "\r") field += char;
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    const [headers, ...data] = rows;
+    return data.filter(row => row.length === headers.length).map(row => {
+      const item = Object.fromEntries(headers.map((key, index) => [key, row[index]]));
+      return {
+        date:item.date, time:item.time, foods:item.foods,
+        kcal:Number(item.kcal), p:Number(item.protein_g), f:Number(item.fat_g),
+        c:Number(item.carbs_g), fiber:Number(item.fiber_g)
+      };
+    });
+  }
+
+  function activeDate() {
+    const today = moscowToday();
+    return peekDate && peekDate !== today ? peekDate : today;
+  }
+
+  function dayTargets(date) {
+    const isTraining = trainingDays.has(new Date(`${date}T12:00:00`).getDay());
+    return {
+      kcal: isTraining ? targets.trainingKcal : targets.restKcal,
+      carbs: isTraining ? targets.trainingCarbs : targets.restCarbs
+    };
+  }
+
+  const metrics = [
+    { key:"kcal", label:"Калории", mode:"ceiling" },
+    { key:"p", label:"Белок", mode:"floor" },
+    { key:"f", label:"Жиры", mode:"ceiling" },
+    { key:"c", label:"Углеводы", mode:"ceiling" },
+    { key:"fiber", label:"Клетчатка", mode:"floor", warnBelow:true }
+  ];
+
+  function renderMatrix() {
+    const today = moscowToday();
+    const yesterday = shiftDate(today, -1);
+    const dates = [...new Set(allEntries.map(x => x.date))].sort().reverse();
+    const active = activeDate();
+    const headCells = dates.map(date => {
+      const title = dayTitle(date, today, yesterday);
+      const cls = [
+        "day-col day-head",
+        date === today ? "is-today" : "",
+        date === active ? "is-active" : ""
+      ].filter(Boolean).join(" ");
+      return `<th class="${cls}" data-date="${date}" role="button">${title}</th>`;
+    }).join("");
+
+    const bodyRows = metrics.map(m => {
+      const cells = dates.map(date => {
+        const rows = allEntries.filter(x => x.date === date);
+        const t = total(rows);
+        const dt = dayTargets(date);
+        const target = m.key === "kcal" ? dt.kcal
+          : m.key === "c" ? dt.carbs
+          : targets[m.key];
+        const value = t[m.key];
+        const st = statusOf(value, target, m.mode, m.warnBelow ? {warnBelow:true} : {});
+        const mark = markHtml(value, target, m.mode, m.warnBelow ? {warnBelow:true} : {});
+        const toneCls = st.tone ? `tone-${st.tone}` : "";
+        const cls = [
+          "day-col",
+          date === active ? "is-active" : "",
+          date === today ? "is-today" : ""
+        ].filter(Boolean).join(" ");
+        return `<td class="${cls}" data-date="${date}" role="button"><div class="cell-val ${toneCls}">${mark}<span>${fmtInt(value)}</span></div></td>`;
+      }).join("");
+      return `<tr><th class="metric-head">${m.label}</th>${cells}</tr>`;
+    }).join("");
+
+    matrixEl.innerHTML = `<thead><tr><th class="metric-head"></th>${headCells}</tr></thead><tbody>${bodyRows}</tbody>`;
+  }
+
+  function macrosRow(values, extras, kind) {
+    const keys = ["kcal","p","f","c","fiber"];
+    return `<div class="totals">${keys.map((k, i) => {
+      const shareHtml = kind === "meal" ? (extras.share?.[i] || "") : "";
+      const mark = kind === "day" ? (extras.marks?.[i] || "") : "";
+      return `<div class="total"><span class="macros"><span class="macros-signal">${mark}</span><span>${values[k]}${shareHtml}</span></span></div>`;
+    }).join("")}</div>`;
+  }
+
+  function renderPanel() {
+    const today = moscowToday();
+    const yesterday = shiftDate(today, -1);
+    const date = activeDate();
+    const rows = allEntries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
+    const t = total(rows);
+    const dt = dayTargets(date);
+    panelTitle.textContent = dayTitle(date, today, yesterday);
+    panelClose.classList.toggle("visible", peekDate && peekDate !== today);
+
+    if (!rows.length) {
+      panelBody.innerHTML = `<p class="empty">Нет записей</p>`;
+      return;
+    }
+
+    const share = (part, whole) => {
+      if (!whole || !part) return "";
+      return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
+    };
+    const dayMarks = [
+      markHtml(t.kcal, dt.kcal),
+      markHtml(t.p, targets.p, "floor"),
+      markHtml(t.f, targets.f),
+      markHtml(t.c, dt.carbs),
+      markHtml(t.fiber, targets.fiber, "floor", {warnBelow:true})
+    ];
+    const totalsHtml = macrosRow(
+      {kcal:fmtInt(t.kcal),p:fmtInt(t.p),f:fmtInt(t.f),c:fmtInt(t.c),fiber:fmtInt(t.fiber)},
+      { marks: dayMarks },
+      "day"
+    );
+    const mealsHtml = rows.map(x => {
+      const shares = [
+        share(x.kcal,t.kcal), share(x.p,t.p), share(x.f,t.f), share(x.c,t.c), share(x.fiber,t.fiber)
+      ];
+      return `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosRow(
+        {kcal:fmtInt(x.kcal),p:fmtInt(x.p),f:fmtInt(x.f),c:fmtInt(x.c),fiber:fmtInt(x.fiber)},
+        { share: shares },
+        "meal"
+      )}</div>`;
+    }).join("");
+    panelBody.innerHTML = totalsHtml + `<div class="meals">${mealsHtml}</div>`;
+  }
+
+  function render() {
+    renderMatrix();
+    renderPanel();
+  }
+
+  function selectDay(date) {
+    const today = moscowToday();
+    peekDate = date === today ? null : date;
+    render();
+  }
+
+  matrixEl.addEventListener("click", e => {
+    const cell = e.target.closest("[data-date]");
+    if (!cell) return;
+    selectDay(cell.dataset.date);
+  });
+
+  panelClose.addEventListener("click", () => {
+    peekDate = null;
+    render();
+  });
+
+  function fetchCsv(url) {
+    const bust = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return fetch(`${url}?v=${bust}`, { cache:"no-store" }).then(async r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const text = await r.text();
+      if (!text.includes("date,time,meal_type")) throw new Error("bad csv");
+      return text;
+    });
+  }
+
+  function loadData() {
+    refreshBtn.disabled = true;
+    refreshBtn.classList.add("is-loading");
+    return Promise.all(csvUrls.map(url => fetchCsv(url).catch(() => null)))
+      .then(results => {
+        const texts = results.filter(Boolean);
+        if (!texts.length) {
+          panelBody.innerHTML = `<p class="empty">Не загрузился log.csv</p>`;
+          return;
+        }
+        allEntries = parseCsv(texts[0]);
+        peekDate = null;
+        render();
+      })
+      .finally(() => {
+        refreshBtn.disabled = false;
+        refreshBtn.classList.remove("is-loading");
+      });
+  }
+
+  refreshBtn.addEventListener("click", () => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("r", String(Date.now()));
+    window.location.replace(url.toString());
+  });
+
+  loadData();
+</script>
+</body>
+</html>
