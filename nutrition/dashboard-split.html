@@ -24,7 +24,7 @@
       --meals:#f0ebe6;
       --split:50%;
       --col:72px;
-      --label-col:28px;
+      --label-col:62px;
       --footer-h:32px;
       --bar-h:3px;
       --panel-gutter:12px;
@@ -71,10 +71,10 @@
       display:flex;
       align-items:center;
       justify-content:flex-start;
-      font-size:10px;
+      font-size:9px;
       font-weight:400;
       color:var(--ink);
-      line-height:1;
+      line-height:1.15;
       letter-spacing:0;
       font-family:var(--font);
     }
@@ -177,11 +177,12 @@
       padding-left:4px;
       line-height:1.25;
       flex:0 0 auto;
-      font-size:10px;
+      font-size:9px;
       font-weight:400;
       color:var(--ink);
       font-family:var(--font);
       letter-spacing:0;
+      text-transform:uppercase;
     }
     .day-label::after {
       content:"";
@@ -363,11 +364,11 @@
   let datesCache = [];
 
   const metrics = [
-    { key:"kcal", letter:"К", mode:"ceiling" },
-    { key:"p", letter:"Б", mode:"floor" },
-    { key:"f", letter:"Ж", mode:"ceiling" },
-    { key:"c", letter:"У", mode:"ceiling" },
-    { key:"fiber", letter:"КЛ", mode:"floor", warnBelow:true }
+    { key:"kcal", label:"калории", mode:"ceiling" },
+    { key:"p", label:"белки", mode:"floor" },
+    { key:"f", label:"жиры", mode:"ceiling" },
+    { key:"c", label:"углеводы", mode:"ceiling" },
+    { key:"fiber", label:"клетчатка", mode:"floor", warnBelow:true }
   ];
 
   const mealOrder = time => {
@@ -395,10 +396,10 @@
   }
   const monthNames = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
   function dayTitle(date, today, yesterday) {
-    if (date === today) return "сегодня";
-    if (date === yesterday) return "вчера";
+    if (date === today) return "СЕГОДНЯ";
+    if (date === yesterday) return "ВЧЕРА";
     const [y, m, d] = date.split("-").map(Number);
-    return `${d} ${monthNames[m - 1]}`;
+    return `${d} ${monthNames[m - 1].toUpperCase()}`;
   }
 
   function parseCsv(text) {
@@ -530,7 +531,7 @@
     matrixInner.style.setProperty("--day-count", String(dates.length));
 
     matrixFixed.innerHTML = metrics.map(m =>
-      `<div class="metric-letter">${m.letter}</div>`
+      `<div class="metric-letter">${m.label}</div>`
     ).join("") + `<div class="metric-letter footer-spacer"></div>`;
 
     matrixBody.innerHTML = metrics.map(m => {
