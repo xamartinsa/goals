@@ -708,7 +708,7 @@
         const data = st ? ` data-pct="${st.pct}" data-tone="${st.tone}"` : "";
         const shareHtml = kind === "meal" ? (extra || "") : "";
         const markHtml = kind === "day" ? (extra || "") : "";
-        return `<div class="total"${data}><span class="macros"><span class="macros-nums">${value}${shareHtml}</span><span class="macros-signal">${markHtml}</span></span></div>`;
+        return `<div class="total"${data}><span class="macros"><span class="macros-signal">${markHtml}</span><span class="macros-nums">${value}${shareHtml}</span></span></div>`;
       }).join("")}</div>`;
       const mealStat = x => [
         statusOf(x.kcal, kcalTarget),
