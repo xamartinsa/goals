@@ -24,7 +24,7 @@
       --meals:#f0ebe6;
       --split:50%;
       --col:72px;
-      --label-col:36px;
+      --label-col:28px;
       --footer-h:36px;
       --bar-h:14px;
       --panel-gutter:12px;
@@ -73,9 +73,10 @@
       justify-content:flex-start;
       font-size:10px;
       font-weight:400;
-      color:var(--label);
+      color:var(--ink);
       line-height:1;
       letter-spacing:0;
+      font-family:var(--font);
     }
     .matrix-fixed .metric-letter.footer-spacer {
       flex:0 0 auto;
@@ -176,6 +177,11 @@
       padding-left:4px;
       line-height:1.25;
       flex:0 0 auto;
+      font-size:10px;
+      font-weight:400;
+      color:var(--ink);
+      font-family:var(--font);
+      letter-spacing:0;
     }
     .day-label::after {
       content:"";
@@ -208,28 +214,37 @@
     .day-panel-body > .empty {
       margin-top:10px;
     }
-    .totals {
-      display:flex;
-      gap:12px;
-      margin:0 0 12px;
+    .empty { color:var(--muted); font-size:13px; }
+    .meals { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .meal-time {
+      font-size:11px;
+      margin:0;
+      line-height:1.2;
+      color:var(--ink);
     }
-    .total { flex:1 1 0; min-width:0; }
-    .macros {
+    .meal .food {
+      font-size:11px;
+      margin-top:1px;
+      line-height:1.3;
+      color:var(--ink);
+    }
+    .meal-macros {
+      margin-top:3px;
       font-family:var(--font-num);
-      font-size:14px;
+      font-size:11px;
+      line-height:1.2;
       color:var(--ink);
       font-feature-settings:"tnum" 1, "lnum" 1;
+      font-variant-numeric:tabular-nums lining-nums;
     }
-    .share {
-      font-size:8px;
-      color:var(--label);
-      margin-left:0.1em;
+    .macro-item + .macro-item { margin-left:7px; }
+    .macro-tag {
+      font-family:var(--font);
+      font-size:10px;
+      font-weight:400;
+      color:var(--ink);
+      letter-spacing:0;
     }
-    .meals { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
-    .meal-time { font-size:11px; margin:0; line-height:1.2; }
-    .meal .food { font-size:11px; margin-top:2px; }
-    .meal .totals { margin:1px 0 0; }
-    .empty { color:var(--muted); font-size:13px; }
     .refresh {
       position:fixed;
       bottom:max(12px, env(safe-area-inset-bottom, 0px));
@@ -322,11 +337,11 @@
   let datesCache = [];
 
   const metrics = [
-    { key:"kcal", letter:"кал", mode:"ceiling" },
-    { key:"p", letter:"бел", mode:"floor" },
-    { key:"f", letter:"жир", mode:"ceiling" },
-    { key:"c", letter:"угл", mode:"ceiling" },
-    { key:"fiber", letter:"клч", mode:"floor", warnBelow:true }
+    { key:"kcal", letter:"К", mode:"ceiling" },
+    { key:"p", letter:"Б", mode:"floor" },
+    { key:"f", letter:"Ж", mode:"ceiling" },
+    { key:"c", letter:"У", mode:"ceiling" },
+    { key:"fiber", letter:"КЛ", mode:"floor", warnBelow:true }
   ];
 
   const mealOrder = time => {
@@ -514,35 +529,33 @@
     requestAnimationFrame(drawAllGraphs);
   }
 
-  function macrosRow(values, shares) {
-    const keys = ["kcal","p","f","c","fiber"];
-    return `<div class="totals">${keys.map((k, i) =>
-      `<div class="total"><span class="macros">${values[k]}${shares?.[i] || ""}</span></div>`
+  function macrosInline(values) {
+    const parts = [
+      { tag:"К", val:values.kcal },
+      { tag:"Б", val:values.p },
+      { tag:"Ж", val:values.f },
+      { tag:"У", val:values.c },
+      { tag:"КЛ", val:values.fiber }
+    ];
+    return `<div class="meal-macros">${parts.map(p =>
+      `<span class="macro-item"><span class="macro-tag">${p.tag}</span>${p.val}</span>`
     ).join("")}</div>`;
   }
 
   function renderPanel() {
     const date = activeDate();
     const rows = allEntries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
-    const t = total(rows);
 
     if (!rows.length) {
       panelBody.innerHTML = `<p class="empty">Нет записей</p>`;
       return;
     }
 
-    const share = (part, whole) => {
-      if (!whole || !part) return "";
-      return `<span class="share">${Math.round(part / whole * 100)}%</span>`;
-    };
-    const mealsHtml = rows.map(x => {
-      const shares = [
-        share(x.kcal,t.kcal), share(x.p,t.p), share(x.f,t.f), share(x.c,t.c), share(x.fiber,t.fiber)
-      ];
-      return `<div class="meal"><div class="meal-time">${x.time}</div>${macrosRow({
+    const mealsHtml = rows.map(x =>
+      `<div class="meal"><div class="meal-time">${x.time}</div><div class="food">${escapeHtml(prettyFoods(x.foods))}</div>${macrosInline({
         kcal:fmtInt(x.kcal), p:fmtInt(x.p), f:fmtInt(x.f), c:fmtInt(x.c), fiber:fmtInt(x.fiber)
-      }, shares)}<div class="food">${escapeHtml(prettyFoods(x.foods))}</div></div>`;
-    }).join("");
+      })}</div>`
+    ).join("");
     panelBody.innerHTML = `<div class="meals">${mealsHtml}</div>`;
   }
 
