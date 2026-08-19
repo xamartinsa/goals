@@ -25,8 +25,8 @@
       --split:50%;
       --col:72px;
       --label-col:28px;
-      --footer-h:36px;
-      --bar-h:14px;
+      --footer-h:32px;
+      --bar-h:3px;
       --panel-gutter:12px;
     }
     * { box-sizing:border-box; }
@@ -202,14 +202,36 @@
       flex-direction:column;
       padding:0 max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
     }
+    .day-panel-wrap {
+      flex:1 1 auto;
+      min-height:0;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+    }
     .day-panel-body {
       flex:1 1 auto;
       min-height:0;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
       background:var(--meals);
-      border-radius:12px 12px 0 0;
+      border-radius:12px;
       padding:0 16px 16px;
+    }
+    .day-panel-fade {
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height:52px;
+      pointer-events:none;
+      background:linear-gradient(to top, var(--meals) 0%, rgb(240 235 230 / 0) 100%);
+      border-radius:0 0 12px 12px;
+      opacity:0;
+      transition:opacity .2s;
+    }
+    .day-panel-wrap.can-scroll:not(.at-end) .day-panel-fade {
+      opacity:1;
     }
     .day-panel-body > .empty {
       margin-top:10px;
@@ -280,7 +302,10 @@
     </div>
   </div>
   <div class="bottom-pane">
-    <div class="day-panel-body" id="panelBody"></div>
+    <div class="day-panel-wrap" id="panelWrap">
+      <div class="day-panel-body" id="panelBody"></div>
+      <div class="day-panel-fade" aria-hidden="true"></div>
+    </div>
   </div>
 </div>
 <button type="button" class="refresh" id="refresh" aria-label="Обновить">
@@ -330,6 +355,7 @@
   const matrixFooter = document.querySelector("#matrixFooter");
   const matrixInner = document.querySelector("#matrixInner");
   const panelBody = document.querySelector("#panelBody");
+  const panelWrap = document.querySelector("#panelWrap");
   const refreshBtn = document.querySelector("#refresh");
 
   let allEntries = [];
@@ -542,12 +568,21 @@
     ).join("")}</div>`;
   }
 
+  function updatePanelFade() {
+    if (!panelWrap || !panelBody) return;
+    const canScroll = panelBody.scrollHeight > panelBody.clientHeight + 2;
+    const atEnd = panelBody.scrollHeight - panelBody.scrollTop - panelBody.clientHeight < 4;
+    panelWrap.classList.toggle("can-scroll", canScroll);
+    panelWrap.classList.toggle("at-end", !canScroll || atEnd);
+  }
+
   function renderPanel() {
     const date = activeDate();
     const rows = allEntries.filter(x => x.date === date).sort((a, b) => mealOrder(b.time) - mealOrder(a.time));
 
     if (!rows.length) {
       panelBody.innerHTML = `<p class="empty">Нет записей</p>`;
+      requestAnimationFrame(updatePanelFade);
       return;
     }
 
@@ -557,6 +592,7 @@
       })}</div>`
     ).join("");
     panelBody.innerHTML = `<div class="meals">${mealsHtml}</div>`;
+    requestAnimationFrame(updatePanelFade);
   }
 
   function render() {
@@ -579,7 +615,11 @@
     if (!cell) return;
     selectDay(cell.dataset.date);
   });
-  window.addEventListener("resize", () => requestAnimationFrame(drawAllGraphs));
+  window.addEventListener("resize", () => {
+    requestAnimationFrame(drawAllGraphs);
+    requestAnimationFrame(updatePanelFade);
+  });
+  panelBody.addEventListener("scroll", () => updatePanelFade(), {passive:true});
 
   function fetchCsv(url) {
     const bust = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
