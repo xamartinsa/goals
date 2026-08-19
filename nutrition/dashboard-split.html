@@ -27,6 +27,7 @@
       --label-col:36px;
       --footer-h:36px;
       --bar-h:14px;
+      --panel-gutter:12px;
     }
     * { box-sizing:border-box; }
     html, body {
@@ -190,16 +191,18 @@
     .bottom-pane {
       flex:1 1 auto;
       min-height:0;
-      background:var(--meals);
+      background:#fff;
       display:flex;
       flex-direction:column;
-      padding-bottom:env(safe-area-inset-bottom, 0px);
+      padding:0 max(var(--panel-gutter), env(safe-area-inset-right)) max(var(--panel-gutter), env(safe-area-inset-bottom)) max(var(--panel-gutter), env(safe-area-inset-left));
     }
     .day-panel-body {
       flex:1 1 auto;
       min-height:0;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
+      background:var(--meals);
+      border-radius:12px 12px 0 0;
       padding:0 16px 16px;
     }
     .day-panel-body > .empty {
